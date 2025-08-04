@@ -31,16 +31,22 @@ describe('PasswordService', () => {
     });
 
     it('should throw error for non-string password', async () => {
-      await expect(service.hashPassword(null as any)).rejects.toThrow('Password must be a non-empty string');
+      await expect(service.hashPassword(null as any)).rejects.toThrow(
+        'Password must be a non-empty string'
+      );
     });
 
     it('should throw error for password too short', async () => {
-      await expect(service.hashPassword('123')).rejects.toThrow('Password must be at least 8 characters long');
+      await expect(service.hashPassword('123')).rejects.toThrow(
+        'Password must be at least 8 characters long'
+      );
     });
 
     it('should throw error for password too long', async () => {
       const longPassword = 'a'.repeat(200);
-      await expect(service.hashPassword(longPassword)).rejects.toThrow('Password must not exceed 128 characters');
+      await expect(service.hashPassword(longPassword)).rejects.toThrow(
+        'Password must not exceed 128 characters'
+      );
     });
   });
 
@@ -167,14 +173,14 @@ describe('PasswordService', () => {
 
     it('should generate password with special characters by default', () => {
       const password = service.generateRandomPassword();
-      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password);
 
       expect(hasSpecialChar).toBe(true);
     });
 
     it('should generate password without special characters when disabled', () => {
       const password = service.generateRandomPassword(16, false);
-      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password);
 
       expect(hasSpecialChar).toBe(false);
     });

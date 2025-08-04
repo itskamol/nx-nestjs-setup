@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 import { NestWinstonLogger } from './app/common/logger/nest-logger.service';
 import { GlobalExceptionFilter } from './app/common/filters/global-exception.filter';
-import { LoggingInterceptor } from './app/common/interceptors/logging.interceptor';
+
 import { TransformInterceptor } from './app/common/interceptors/transform.interceptor';
 import { AppConfigService } from './app/config/config.service';
 import { PrismaService } from './app/database/prisma.service';
@@ -22,28 +22,30 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   // Security middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        fontSrc: ["'self'", "data:"],
-        connectSrc: ["'self'"],
-        frameSrc: ["'none'"],
-        objectSrc: ["'none'"],
-        baseUri: ["'self'"],
-        formAction: ["'self'"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          fontSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          frameSrc: ["'none'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false, // Disable for API
-    hsts: {
-      maxAge: 31536000, // 1 year
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
+      crossOriginEmbedderPolicy: false, // Disable for API
+      hsts: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true,
+      },
+    })
+  );
 
   // CORS configuration
   app.enableCors({
@@ -71,9 +73,7 @@ async function bootstrap() {
 
   // Global filters and interceptors
   app.useGlobalFilters(new GlobalExceptionFilter());
-  app.useGlobalInterceptors(
-    new TransformInterceptor()
-  );
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger documentation (only in development)
   if (configService.isDevelopment) {
@@ -101,7 +101,9 @@ async function bootstrap() {
       },
     });
 
-    logger.log(`📚 Swagger documentation available at: http://localhost:${configService.port}/${configService.apiPrefix}/docs`);
+    logger.log(
+      `📚 Swagger documentation available at: http://localhost:${configService.port}/${configService.apiPrefix}/docs`
+    );
   }
 
   // Prisma shutdown hooks
@@ -111,11 +113,13 @@ async function bootstrap() {
   // Start the application
   await app.listen(configService.port);
 
-  logger.log(`🚀 Application is running on: http://localhost:${configService.port}/${configService.apiPrefix}`);
+  logger.log(
+    `🚀 Application is running on: http://localhost:${configService.port}/${configService.apiPrefix}`
+  );
   logger.log(`🌍 Environment: ${configService.nodeEnv}`);
 }
 
-bootstrap().catch((error) => {
+bootstrap().catch(error => {
   Logger.error('❌ Error starting server', error);
   process.exit(1);
 });

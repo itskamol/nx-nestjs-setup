@@ -14,10 +14,10 @@ describe('Backend E2E Tests - API Health and Basic Functionality', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Apply the same configuration as main.ts
     app.setGlobalPrefix('api');
-    
+
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -45,9 +45,7 @@ describe('Backend E2E Tests - API Health and Basic Functionality', () => {
   describe('Application Health and Monitoring', () => {
     it('should provide comprehensive health information', async () => {
       // Step 1: Basic health check
-      const healthResponse = await request(app.getHttpServer())
-        .get('/api/health')
-        .expect(200);
+      const healthResponse = await request(app.getHttpServer()).get('/api/health').expect(200);
 
       expect(healthResponse.body.success).toBe(true);
       expect(healthResponse.body.data.status).toMatch(/healthy|degraded|unhealthy/);
@@ -66,9 +64,7 @@ describe('Backend E2E Tests - API Health and Basic Functionality', () => {
       expect(detailedHealthResponse.body.data.system.platform).toBeDefined();
 
       // Step 3: Application info
-      const appInfoResponse = await request(app.getHttpServer())
-        .get('/api')
-        .expect(200);
+      const appInfoResponse = await request(app.getHttpServer()).get('/api').expect(200);
 
       expect(appInfoResponse.body.success).toBe(true);
       expect(appInfoResponse.body.data.name).toBeDefined();
@@ -181,5 +177,4 @@ describe('Backend E2E Tests - API Health and Basic Functionality', () => {
         .expect(404);
     });
   });
-
-  });
+});

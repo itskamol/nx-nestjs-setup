@@ -1,11 +1,11 @@
 import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
   BadRequestException,
+  ConflictException,
+  Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
-import { User, Prisma } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { PasswordService } from '../common/services/password.service';
 import { CacheService } from '../common/cache/cache.service';
@@ -58,9 +58,7 @@ export class UsersService {
       }
 
       // Hash password
-      const hashedPassword = await this.passwordService.hashPassword(
-        createUserDto.password
-      );
+      const hashedPassword = await this.passwordService.hashPassword(createUserDto.password);
 
       // Create user
       const user = await this.prismaService.user.create({
@@ -111,7 +109,7 @@ export class UsersService {
       }
 
       if (role) {
-        where.role = role as any;
+        where.role = role as Role;
       }
 
       if (typeof isActive === 'boolean') {

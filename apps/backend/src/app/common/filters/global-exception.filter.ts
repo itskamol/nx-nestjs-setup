@@ -1,13 +1,16 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library';
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+} from '@prisma/client/runtime/library';
 import { ThrottlerException } from '@nestjs/throttler';
 import { ERROR_CODES } from '@shared/constants';
 import { BusinessLogicException } from '../exceptions/business-logic.exception';
@@ -116,7 +119,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status,
         error: {
           code: this.getErrorCodeFromStatus(status),
-          message: typeof response === 'string' ? response : (response as any).message || exception.message,
+          message:
+            typeof response === 'string'
+              ? response
+              : (response as any).message || exception.message,
           details: typeof response === 'object' ? response : undefined,
         },
       };
@@ -139,7 +145,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error: {
           code: ERROR_CODES.AUTHENTICATION_ERROR,
           message: 'Invalid or expired token',
-          details: process.env['NODE_ENV'] === 'development' ? (exception as Error).message : undefined,
+          details:
+            process.env['NODE_ENV'] === 'development' ? (exception as Error).message : undefined,
         },
       };
     }
@@ -176,7 +183,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error: {
         code: ERROR_CODES.INTERNAL_ERROR,
         message: 'Internal server error',
-        details: process.env['NODE_ENV'] === 'development' ? (exception as Error).message : undefined,
+        details:
+          process.env['NODE_ENV'] === 'development' ? (exception as Error).message : undefined,
       },
     };
   }

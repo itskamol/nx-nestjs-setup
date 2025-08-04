@@ -1,9 +1,9 @@
 import {
-  Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
@@ -36,7 +36,7 @@ export class JwtAuthGuard extends PassportAuthGuard('jwt') implements CanActivat
 
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
-    
+
     // Log authentication attempt
     this.logger.debug(`Authentication attempt for ${request.method} ${request.url}`);
 
@@ -48,7 +48,7 @@ export class JwtAuthGuard extends PassportAuthGuard('jwt') implements CanActivat
 
     // Log successful authentication
     this.logger.debug(`Authentication successful for user: ${user.email}`);
-    
+
     return user;
   }
 }

@@ -1,6 +1,6 @@
 import { ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { CustomValidationPipe } from './validation.pipe';
 
 // Test DTO classes
@@ -81,9 +81,7 @@ describe('CustomValidationPipe', () => {
         password: 'password123',
       };
 
-      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException for short password', async () => {
@@ -92,9 +90,7 @@ describe('CustomValidationPipe', () => {
         password: '123',
       };
 
-      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException for missing required fields', async () => {
@@ -102,9 +98,7 @@ describe('CustomValidationPipe', () => {
         name: 'Test User',
       };
 
-      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(pipe.transform(invalidData, metadata)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException with multiple validation errors', async () => {
@@ -161,7 +155,7 @@ describe('CustomValidationPipe', () => {
         fail('Expected BadRequestException to be thrown');
       } catch (error) {
         const response = (error as BadRequestException).getResponse() as any;
-        
+
         expect(response.success).toBe(false);
         expect(response.error.code).toBe('VALIDATION_ERROR');
         expect(response.error.message).toBe('Validation failed');
@@ -195,7 +189,7 @@ describe('CustomValidationPipe', () => {
       } catch (error) {
         const response = (error as BadRequestException).getResponse() as any;
         const errors = response.error.details.errors;
-        
+
         // Should have nested errors for user object
         const userError = errors.find((err: any) => err.field === 'user');
         expect(userError).toBeDefined();
@@ -226,7 +220,7 @@ describe('CustomValidationPipe', () => {
         const response = (error as BadRequestException).getResponse() as any;
         const errors = response.error.details.errors;
         const valueError = errors.find((err: any) => err.field === 'value');
-        
+
         // Should prioritize minLength constraint for empty string
         expect(valueError.message).toContain('must be longer than or equal to 5 characters');
       }
@@ -236,7 +230,7 @@ describe('CustomValidationPipe', () => {
   describe('logging', () => {
     it('should log validation attempts in debug mode', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      
+
       const validData = {
         email: 'test@example.com',
         password: 'password123',

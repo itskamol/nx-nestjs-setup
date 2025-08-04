@@ -1,11 +1,11 @@
 import {
-  PipeTransform,
-  Injectable,
   ArgumentMetadata,
   BadRequestException,
+  Injectable,
   Logger,
+  PipeTransform,
 } from '@nestjs/common';
-import { validate, ValidationError } from 'class-validator';
+import { ValidationError, validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { ERROR_CODES } from '@shared/constants';
 
@@ -46,7 +46,7 @@ export class CustomValidationPipe implements PipeTransform<any> {
 
     if (errors.length > 0) {
       const formattedErrors = this.formatValidationErrors(errors);
-      
+
       this.logger.warn(`Validation failed for ${type} parameter: ${data || 'body'}`, {
         errors: formattedErrors,
         originalValue: value,
@@ -68,8 +68,8 @@ export class CustomValidationPipe implements PipeTransform<any> {
     return object;
   }
 
-  private toValidate(metatype: Function): boolean {
-    const types: Function[] = [String, Boolean, Number, Array, Object];
+  private toValidate(metatype: any): boolean {
+    const types: any[] = [String, Boolean, Number, Array, Object];
     return !types.includes(metatype);
   }
 
@@ -98,7 +98,7 @@ export class CustomValidationPipe implements PipeTransform<any> {
     if (error.constraints) {
       // Return the first constraint message, or a custom priority order
       const constraintKeys = Object.keys(error.constraints);
-      
+
       // Priority order for constraint messages
       const priorityOrder = [
         'isNotEmpty',

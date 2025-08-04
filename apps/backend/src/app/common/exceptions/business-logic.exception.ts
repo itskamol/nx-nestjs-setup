@@ -2,11 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { ERROR_CODES } from '@shared/constants';
 
 export class BusinessLogicException extends HttpException {
-  constructor(
-    message: string,
-    details?: any,
-    statusCode: HttpStatus = HttpStatus.BAD_REQUEST
-  ) {
+  constructor(message: string, details?: any, statusCode: HttpStatus = HttpStatus.BAD_REQUEST) {
     const response = {
       success: false,
       error: {
@@ -23,7 +19,7 @@ export class BusinessLogicException extends HttpException {
 
 export class ResourceNotFoundException extends HttpException {
   constructor(resource: string, identifier?: string) {
-    const message = identifier 
+    const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`;
 
@@ -60,7 +56,7 @@ export class ResourceConflictException extends HttpException {
 
 export class InsufficientPermissionsException extends HttpException {
   constructor(action: string, resource?: string) {
-    const message = resource 
+    const message = resource
       ? `Insufficient permissions to ${action} ${resource}`
       : `Insufficient permissions to ${action}`;
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { AppConfig, DatabaseConfig, JwtConfig, RedisConfig, LoggingConfig } from './configuration';
+import { AppConfig, DatabaseConfig, JwtConfig, LoggingConfig, RedisConfig } from './configuration';
 
 @Injectable()
 export class AppConfigService {
@@ -28,41 +28,49 @@ export class AppConfigService {
 
   get database(): DatabaseConfig {
     const config = (this.configService as any).get('app');
-    return config?.database || {
-      url: 'postgresql://user:password@localhost:5432/nestjs_backend',
-      maxConnections: 10,
-      ssl: false,
-    };
+    return (
+      config?.database || {
+        url: 'postgresql://user:password@localhost:5432/nestjs_backend',
+        maxConnections: 10,
+        ssl: false,
+      }
+    );
   }
 
   get jwt(): JwtConfig {
     const config = (this.configService as any).get('app');
-    return config?.jwt || {
-      secret: 'default-secret',
-      expiresIn: '15m',
-      refreshSecret: 'default-refresh-secret',
-      refreshExpiresIn: '7d',
-    };
+    return (
+      config?.jwt || {
+        secret: 'default-secret',
+        expiresIn: '15m',
+        refreshSecret: 'default-refresh-secret',
+        refreshExpiresIn: '7d',
+      }
+    );
   }
 
   get redis(): RedisConfig {
     const config = (this.configService as any).get('app');
-    return config?.redis || {
-      host: 'localhost',
-      port: 6379,
-      password: undefined,
-      db: 0,
-    };
+    return (
+      config?.redis || {
+        host: 'localhost',
+        port: 6379,
+        password: undefined,
+        db: 0,
+      }
+    );
   }
 
   get logging(): LoggingConfig {
     const config = (this.configService as any).get('app');
-    return config?.logging || {
-      level: 'info',
-      enableFileLogging: false,
-      maxFiles: '14d',
-      maxSize: '20m',
-    };
+    return (
+      config?.logging || {
+        level: 'info',
+        enableFileLogging: false,
+        maxFiles: '14d',
+        maxSize: '20m',
+      }
+    );
   }
 
   get isDevelopment(): boolean {

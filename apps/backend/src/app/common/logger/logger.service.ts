@@ -105,7 +105,13 @@ export class LoggerService implements NestLoggerService {
     this.logger.log(level, message, { ...meta, context });
   }
 
-  logRequest(method: string, url: string, statusCode: number, responseTime: number, context?: string) {
+  logRequest(
+    method: string,
+    url: string,
+    statusCode: number,
+    responseTime: number,
+    context?: string
+  ) {
     this.logger.info('HTTP Request', {
       method,
       url,

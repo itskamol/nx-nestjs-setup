@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { PrismaService } from '../database/prisma.service';
 import { PasswordService } from '../common/services/password.service';
 import { CacheService } from '../common/cache/cache.service';
-import { User, Role as PrismaRole } from '@prisma/client';
+import { Role as PrismaRole, User } from '@prisma/client';
 import { Role } from '@shared/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -111,9 +111,7 @@ describe('UsersService', () => {
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email: createUserDto.email },
       });
-      expect(passwordService.validatePasswordStrength).toHaveBeenCalledWith(
-        createUserDto.password
-      );
+      expect(passwordService.validatePasswordStrength).toHaveBeenCalledWith(createUserDto.password);
       expect(passwordService.hashPassword).toHaveBeenCalledWith(createUserDto.password);
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: {
@@ -244,11 +242,7 @@ describe('UsersService', () => {
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: mockUser.id },
       });
-      expect(cacheService.set).toHaveBeenCalledWith(
-        `user:${mockUser.id}`,
-        mockUser,
-        { ttl: 900 }
-      );
+      expect(cacheService.set).toHaveBeenCalledWith(`user:${mockUser.id}`, mockUser, { ttl: 900 });
     });
 
     it('should throw NotFoundException if user not found', async () => {
@@ -288,7 +282,7 @@ describe('UsersService', () => {
 
     it('should update user successfully', async () => {
       const updatedUser = { ...mockUser, ...updateUserDto };
-      
+
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.user.update.mockResolvedValue(updatedUser);
       cacheService.set.mockResolvedValue({ success: true, data: true });
@@ -314,14 +308,12 @@ describe('UsersService', () => {
     it('should throw ConflictException if email already exists', async () => {
       const updateWithEmail = { ...updateUserDto, email: 'existing@example.com' };
       const existingUser = { ...mockUser, id: 'different-id' };
-      
+
       prismaService.user.findUnique
         .mockResolvedValueOnce(mockUser) // First call for user existence
         .mockResolvedValueOnce(existingUser); // Second call for email conflict
 
-      await expect(service.update(mockUser.id, updateWithEmail)).rejects.toThrow(
-        ConflictException
-      );
+      await expect(service.update(mockUser.id, updateWithEmail)).rejects.toThrow(ConflictException);
     });
   });
 
@@ -385,7 +377,7 @@ describe('UsersService', () => {
   describe('deactivateUser', () => {
     it('should deactivate user', async () => {
       const deactivatedUser = { ...mockUser, isActive: false };
-      
+
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.user.update.mockResolvedValue(deactivatedUser);
       cacheService.set.mockResolvedValue({ success: true, data: true });
@@ -403,7 +395,7 @@ describe('UsersService', () => {
   describe('activateUser', () => {
     it('should activate user', async () => {
       const activatedUser = { ...mockUser, isActive: true };
-      
+
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.user.update.mockResolvedValue(activatedUser);
       cacheService.set.mockResolvedValue({ success: true, data: true });

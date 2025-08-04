@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import { AppConfigService } from '../../config/config.service';
 
@@ -23,7 +23,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     try {
       const redisConfig = this.configService.redis;
-      
+
       this.redis = new Redis({
         host: redisConfig.host,
         port: redisConfig.port,
@@ -43,7 +43,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         this.logger.log('Redis connection is ready');
       });
 
-      this.redis.on('error', (error) => {
+      this.redis.on('error', error => {
         this.logger.error('Redis connection error', error.stack);
       });
 
@@ -77,7 +77,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     try {
       const fullKey = this.buildKey(key, options?.prefix);
       const value = await this.redis.get(fullKey);
-      
+
       if (value === null) {
         return { success: true, data: undefined };
       }
@@ -90,11 +90,15 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async set<T = any>(key: string, value: T, options?: CacheOptions): Promise<CacheResponse<boolean>> {
+  async set<T = any>(
+    key: string,
+    value: T,
+    options?: CacheOptions
+  ): Promise<CacheResponse<boolean>> {
     try {
       const fullKey = this.buildKey(key, options?.prefix);
       const serializedValue = JSON.stringify(value);
-      
+
       if (options?.ttl) {
         await this.redis.setex(fullKey, options.ttl, serializedValue);
       } else {

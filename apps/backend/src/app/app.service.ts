@@ -12,7 +12,7 @@ export class AppService {
       description: 'A production-ready NestJS backend with best practices',
       environment: this.configService.nodeEnv,
       timestamp: new Date().toISOString(),
-      documentation: this.configService.isDevelopment 
+      documentation: this.configService.isDevelopment
         ? `http://localhost:${this.configService.port}/${this.configService.apiPrefix}/docs`
         : undefined,
     };

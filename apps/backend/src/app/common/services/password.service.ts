@@ -19,11 +19,15 @@ export class PasswordService {
       }
 
       if (password.length < APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH) {
-        throw new Error(`Password must be at least ${APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH} characters long`);
+        throw new Error(
+          `Password must be at least ${APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH} characters long`
+        );
       }
 
       if (password.length > APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH) {
-        throw new Error(`Password must not exceed ${APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH} characters`);
+        throw new Error(
+          `Password must not exceed ${APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH} characters`
+        );
       }
 
       const hashedPassword = await bcrypt.hash(password, this.saltRounds);
@@ -85,13 +89,17 @@ export class PasswordService {
 
     // Length check
     if (password.length < APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH) {
-      errors.push(`Password must be at least ${APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH} characters long`);
+      errors.push(
+        `Password must be at least ${APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH} characters long`
+      );
     } else {
       score += 1;
     }
 
     if (password.length > APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH) {
-      errors.push(`Password must not exceed ${APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH} characters`);
+      errors.push(
+        `Password must not exceed ${APP_CONSTANTS.VALIDATION.PASSWORD_MAX_LENGTH} characters`
+      );
     }
 
     // Complexity checks
@@ -175,12 +183,12 @@ export class PasswordService {
     }
 
     let password = '';
-    
+
     // Ensure at least one character from each required set
     password += lowercase[Math.floor(Math.random() * lowercase.length)];
     password += uppercase[Math.floor(Math.random() * uppercase.length)];
     password += numbers[Math.floor(Math.random() * numbers.length)];
-    
+
     if (includeSpecialChars) {
       password += specialChars[Math.floor(Math.random() * specialChars.length)];
     }
@@ -191,7 +199,10 @@ export class PasswordService {
     }
 
     // Shuffle the password
-    return password.split('').sort(() => Math.random() - 0.5).join('');
+    return password
+      .split('')
+      .sort(() => Math.random() - 0.5)
+      .join('');
   }
 
   /**

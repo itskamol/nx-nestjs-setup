@@ -20,14 +20,6 @@ describe('Auth Integration Tests', () => {
     lastName: 'User',
   };
 
-  const adminUser = {
-    email: 'admin@example.com',
-    password: 'AdminPassword123!',
-    firstName: 'Admin',
-    lastName: 'User',
-    role: Role.ADMIN,
-  };
-
   beforeAll(async () => {
     // Setup test database
     testDbManager = TestDatabaseManager.getInstance();
@@ -38,7 +30,7 @@ describe('Auth Integration Tests', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Apply the same configuration as main.ts
     app.useGlobalPipes(
       new ValidationPipe({
@@ -254,12 +246,10 @@ describe('Auth Integration Tests', () => {
         },
       });
 
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: testUser.email,
-          password: testUser.password,
-        });
+      const loginResponse = await request(app.getHttpServer()).post('/api/auth/login').send({
+        email: testUser.email,
+        password: testUser.password,
+      });
 
       refreshToken = loginResponse.body.data.refreshToken;
     });
@@ -311,12 +301,10 @@ describe('Auth Integration Tests', () => {
         },
       });
 
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: testUser.email,
-          password: testUser.password,
-        });
+      const loginResponse = await request(app.getHttpServer()).post('/api/auth/login').send({
+        email: testUser.email,
+        password: testUser.password,
+      });
 
       accessToken = loginResponse.body.data.accessToken;
     });
@@ -344,9 +332,7 @@ describe('Auth Integration Tests', () => {
     });
 
     it('should return 401 without token', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/auth/me')
-        .expect(401);
+      const response = await request(app.getHttpServer()).get('/api/auth/me').expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('AUTHENTICATION_ERROR');
@@ -376,12 +362,10 @@ describe('Auth Integration Tests', () => {
         },
       });
 
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: testUser.email,
-          password: testUser.password,
-        });
+      const loginResponse = await request(app.getHttpServer()).post('/api/auth/login').send({
+        email: testUser.email,
+        password: testUser.password,
+      });
 
       accessToken = loginResponse.body.data.accessToken;
     });
@@ -389,7 +373,7 @@ describe('Auth Integration Tests', () => {
     it('should change password successfully', async () => {
       const newPassword = 'NewPassword123!';
 
-      const response = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/api/auth/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
@@ -446,9 +430,7 @@ describe('Auth Integration Tests', () => {
 
   describe('GET /auth/health', () => {
     it('should return health status', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/auth/health')
-        .expect(200);
+      const response = await request(app.getHttpServer()).get('/api/auth/health').expect(200);
 
       expect(response.body).toMatchObject({
         success: true,

@@ -3,12 +3,11 @@ import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from './jwt.service';
 import { AppConfigService } from '../config/config.service';
-import { User, Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
 describe('JwtService', () => {
   let service: JwtService;
   let nestJwtService: jest.Mocked<NestJwtService>;
-  let configService: jest.Mocked<AppConfigService>;
 
   const mockUser: User = {
     id: 'user-123',
@@ -56,7 +55,6 @@ describe('JwtService', () => {
 
     service = module.get<JwtService>(JwtService);
     nestJwtService = module.get(NestJwtService);
-    configService = module.get(AppConfigService);
   });
 
   it('should be defined', () => {
@@ -80,7 +78,7 @@ describe('JwtService', () => {
       });
 
       expect(nestJwtService.sign).toHaveBeenCalledTimes(2);
-      
+
       // Check access token call
       expect(nestJwtService.sign).toHaveBeenNthCalledWith(
         1,
@@ -111,9 +109,7 @@ describe('JwtService', () => {
         throw new Error('Token generation failed');
       });
 
-      await expect(service.generateTokens(mockUser)).rejects.toThrow(
-        'Token generation failed'
-      );
+      await expect(service.generateTokens(mockUser)).rejects.toThrow('Token generation failed');
     });
   });
 
@@ -143,18 +139,14 @@ describe('JwtService', () => {
         throw new Error('Invalid token');
       });
 
-      await expect(service.verifyAccessToken(mockToken)).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.verifyAccessToken(mockToken)).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException for token with missing payload fields', async () => {
       const invalidPayload = { sub: mockUser.id }; // Missing email and role
       nestJwtService.verify.mockReturnValue(invalidPayload);
 
-      await expect(service.verifyAccessToken(mockToken)).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.verifyAccessToken(mockToken)).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -207,21 +199,15 @@ describe('JwtService', () => {
     });
 
     it('should throw UnauthorizedException for missing header', () => {
-      expect(() => service.extractTokenFromHeader('')).toThrow(
-        UnauthorizedException
-      );
+      expect(() => service.extractTokenFromHeader('')).toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException for invalid header format', () => {
-      expect(() => service.extractTokenFromHeader('Invalid header')).toThrow(
-        UnauthorizedException
-      );
+      expect(() => service.extractTokenFromHeader('Invalid header')).toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException for missing token', () => {
-      expect(() => service.extractTokenFromHeader('Bearer ')).toThrow(
-        UnauthorizedException
-      );
+      expect(() => service.extractTokenFromHeader('Bearer ')).toThrow(UnauthorizedException);
     });
   });
 

@@ -3,7 +3,7 @@ const { join } = require('path');
 
 module.exports = (config, context) => {
   const isProduction = context.configuration === 'production';
-  
+
   return {
     output: {
       path: join(__dirname, '../../dist/apps/backend'),
@@ -21,11 +21,13 @@ module.exports = (config, context) => {
         sourceMap: !isProduction,
       }),
     ],
-    optimization: isProduction ? {
-      minimize: true,
-      sideEffects: false,
-      usedExports: true,
-    } : {},
+    optimization: isProduction
+      ? {
+          minimize: true,
+          sideEffects: false,
+          usedExports: true,
+        }
+      : {},
     resolve: {
       extensions: ['.ts', '.js', '.json'],
       alias: {

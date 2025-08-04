@@ -4,7 +4,6 @@ import { AppConfigService } from './config/config.service';
 
 describe('AppService', () => {
   let service: AppService;
-  let configService: AppConfigService;
 
   beforeAll(async () => {
     const mockConfigService = {
@@ -25,13 +24,12 @@ describe('AppService', () => {
     }).compile();
 
     service = app.get<AppService>(AppService);
-    configService = app.get<AppConfigService>(AppConfigService);
   });
 
   describe('getHello', () => {
     it('should return application information', () => {
       const result = service.getHello();
-      
+
       expect(result).toEqual({
         name: 'NestJS Backend API',
         version: expect.any(String),

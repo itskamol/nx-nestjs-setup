@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from '../common/services/password.service';
 import { JwtService } from './jwt.service';
 import { CacheService } from '../common/cache/cache.service';
-import { User, Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -215,7 +215,7 @@ describe('AuthService', () => {
 
     it('should refresh token successfully', async () => {
       const mockPayload = { sub: mockUser.id, type: 'refresh' };
-      
+
       jwtService.verifyRefreshToken.mockResolvedValue(mockPayload);
       cacheService.exists.mockResolvedValue({ success: true, data: false });
       usersService.findOne.mockResolvedValue(mockUser as any);
@@ -234,7 +234,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for blacklisted token', async () => {
       const mockPayload = { sub: mockUser.id, type: 'refresh' };
-      
+
       jwtService.verifyRefreshToken.mockResolvedValue(mockPayload);
       cacheService.exists.mockResolvedValue({ success: true, data: true });
 
@@ -243,7 +243,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for non-existent user', async () => {
       const mockPayload = { sub: 'non-existent-user', type: 'refresh' };
-      
+
       jwtService.verifyRefreshToken.mockResolvedValue(mockPayload);
       cacheService.exists.mockResolvedValue({ success: true, data: false });
       usersService.findOne.mockResolvedValue(null);
@@ -254,7 +254,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for inactive user', async () => {
       const mockPayload = { sub: mockUser.id, type: 'refresh' };
       const inactiveUser = { ...mockUser, isActive: false };
-      
+
       jwtService.verifyRefreshToken.mockResolvedValue(mockPayload);
       cacheService.exists.mockResolvedValue({ success: true, data: false });
       usersService.findOne.mockResolvedValue(inactiveUser as any);
@@ -266,7 +266,7 @@ describe('AuthService', () => {
   describe('logout', () => {
     it('should logout successfully', async () => {
       const refreshToken = 'mock-refresh-token';
-      
+
       jwtService.verifyRefreshToken.mockResolvedValue({ sub: mockUser.id, type: 'refresh' });
       jwtService.getTokenExpiration.mockReturnValue(new Date(Date.now() + 3600000));
       cacheService.set.mockResolvedValue({ success: true, data: true });
@@ -277,7 +277,7 @@ describe('AuthService', () => {
 
     it('should not throw error for invalid token during logout', async () => {
       const refreshToken = 'invalid-token';
-      
+
       jwtService.verifyRefreshToken.mockRejectedValue(new Error('Invalid token'));
 
       await expect(service.logout(refreshToken)).resolves.not.toThrow();
@@ -318,8 +318,9 @@ describe('AuthService', () => {
       });
       usersService.updatePassword.mockResolvedValue(undefined);
 
-      await expect(service.changePassword(userId, currentPassword, newPassword))
-        .resolves.not.toThrow();
+      await expect(
+        service.changePassword(userId, currentPassword, newPassword)
+      ).resolves.not.toThrow();
 
       expect(usersService.findOne).toHaveBeenCalledWith(userId);
       expect(passwordService.comparePassword).toHaveBeenCalledWith(
@@ -333,16 +334,18 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for non-existent user', async () => {
       usersService.findOne.mockResolvedValue(null);
 
-      await expect(service.changePassword(userId, currentPassword, newPassword))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(service.changePassword(userId, currentPassword, newPassword)).rejects.toThrow(
+        UnauthorizedException
+      );
     });
 
     it('should throw UnauthorizedException for incorrect current password', async () => {
       usersService.findOne.mockResolvedValue(mockUser as any);
       passwordService.comparePassword.mockResolvedValue(false);
 
-      await expect(service.changePassword(userId, currentPassword, newPassword))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(service.changePassword(userId, currentPassword, newPassword)).rejects.toThrow(
+        UnauthorizedException
+      );
     });
 
     it('should throw BadRequestException for weak new password', async () => {
@@ -354,8 +357,9 @@ describe('AuthService', () => {
         score: 1,
       });
 
-      await expect(service.changePassword(userId, currentPassword, newPassword))
-        .rejects.toThrow(BadRequestException);
+      await expect(service.changePassword(userId, currentPassword, newPassword)).rejects.toThrow(
+        BadRequestException
+      );
     });
   });
 

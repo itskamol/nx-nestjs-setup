@@ -7,8 +7,6 @@ import { JwtService } from './jwt.service';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { PasswordService } from '../common/services/password.service';
-import { CacheService } from '../common/cache/cache.service';
-import { AppConfigService } from '../config/config.service';
 
 @Module({
   imports: [
@@ -22,12 +20,7 @@ import { AppConfigService } from '../config/config.service';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtService,
-    JwtStrategy,
-    PasswordService,
-  ],
+  providers: [AuthService, JwtService, JwtStrategy, PasswordService],
   exports: [AuthService, JwtService],
 })
 export class AuthModule {}

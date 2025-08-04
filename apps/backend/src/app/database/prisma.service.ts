@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { AppConfigService } from '../config/config.service';
 
@@ -13,8 +13,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
           url: configService.database.url,
         },
       },
-      log: configService.isDevelopment 
-        ? ['query', 'warn', 'error']  // Removed 'info' to hide connection pool logs
+      log: configService.isDevelopment
+        ? ['query', 'warn', 'error'] // Removed 'info' to hide connection pool logs
         : ['warn', 'error'],
       errorFormat: 'pretty',
     });

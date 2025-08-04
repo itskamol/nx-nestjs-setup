@@ -51,7 +51,7 @@ describe('Users Integration Tests', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -92,12 +92,10 @@ describe('Users Integration Tests', () => {
         },
       });
 
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: user.email,
-          password: user.password,
-        });
+      const loginResponse = await request(app.getHttpServer()).post('/api/auth/login').send({
+        email: user.email,
+        password: user.password,
+      });
 
       tokens.push(loginResponse.body.data.accessToken);
     }
@@ -159,10 +157,7 @@ describe('Users Integration Tests', () => {
     });
 
     it('should return 401 without token', async () => {
-      await request(app.getHttpServer())
-        .post('/api/users')
-        .send(newUser)
-        .expect(401);
+      await request(app.getHttpServer()).post('/api/users').send(newUser).expect(401);
     });
   });
 
@@ -266,9 +261,7 @@ describe('Users Integration Tests', () => {
     });
 
     it('should return 401 without token', async () => {
-      await request(app.getHttpServer())
-        .get('/api/users/me')
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/users/me').expect(401);
     });
   });
 

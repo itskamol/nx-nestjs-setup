@@ -195,18 +195,11 @@ export class CacheWarmingService implements OnModuleInit {
   }
 
   async invalidateUserCache(userId: string): Promise<void> {
-    await this.invalidateCache([
-      `user:${userId}`,
-      `user:${userId}:*`,
-      'stats:users:*',
-    ]);
+    await this.invalidateCache([`user:${userId}`, `user:${userId}:*`, 'stats:users:*']);
   }
 
   async invalidateAllUserCaches(): Promise<void> {
-    await this.invalidateCache([
-      'user:*',
-      'stats:users:*',
-    ]);
+    await this.invalidateCache(['user:*', 'stats:users:*']);
   }
 
   async scheduleWarmup(strategyName: string, delayMs: number): Promise<void> {

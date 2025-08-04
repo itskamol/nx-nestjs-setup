@@ -1,8 +1,8 @@
 import {
-  Injectable,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Injectable,
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -43,14 +43,14 @@ export class RolesGuard implements CanActivate {
 
     if (!hasRole) {
       this.logger.warn(
-        `Access denied for user ${user.email}. Required roles: [${requiredRoles.join(', ')}], User role: ${user.role}`
+        `Access denied for user ${user.email}. Required roles: [${requiredRoles.join(
+          ', '
+        )}], User role: ${user.role}`
       );
       throw new ForbiddenException('Insufficient permissions');
     }
 
-    this.logger.debug(
-      `Access granted for user ${user.email} with role ${user.role}`
-    );
+    this.logger.debug(`Access granted for user ${user.email} with role ${user.role}`);
 
     return true;
   }

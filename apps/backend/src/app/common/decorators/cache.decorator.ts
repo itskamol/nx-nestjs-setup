@@ -23,9 +23,17 @@ export const Cache = (options: CacheDecoratorOptions = {}) => {
     // Set metadata for the cache interceptor to use
     SetMetadata(CACHE_KEY_METADATA, options.key || propertyKey)(target, propertyKey, descriptor);
     SetMetadata(CACHE_TTL_METADATA, options.ttl || 300)(target, propertyKey, descriptor); // Default 5 minutes
-    SetMetadata(CACHE_PREFIX_METADATA, options.prefix || target.constructor.name)(target, propertyKey, descriptor);
-    SetMetadata(CACHE_STRATEGY_METADATA, options.strategy || 'standard')(target, propertyKey, descriptor);
-    
+    SetMetadata(CACHE_PREFIX_METADATA, options.prefix || target.constructor.name)(
+      target,
+      propertyKey,
+      descriptor
+    );
+    SetMetadata(CACHE_STRATEGY_METADATA, options.strategy || 'standard')(
+      target,
+      propertyKey,
+      descriptor
+    );
+
     return descriptor;
   };
 };

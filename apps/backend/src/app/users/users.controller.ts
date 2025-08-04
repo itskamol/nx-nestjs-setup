@@ -1,27 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Query,
-  UseGuards,
+  Get,
   HttpCode,
   HttpStatus,
-  ParseIntPipe,
+  Param,
   ParseBoolPipe,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
+  ApiOperation,
   ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { UsersService, FindUsersOptions } from './users.service';
+import { FindUsersOptions, UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -29,7 +29,7 @@ import { JwtAuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/user.decorator';
-import { Role, PaginatedResponse } from '@shared/types';
+import { PaginatedResponse, Role } from '@shared/types';
 import { User } from '@prisma/client';
 
 @ApiTags('Users')
@@ -60,7 +60,12 @@ export class UsersController {
   @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   @ApiQuery({ name: 'search', required: false, type: String, description: 'Search term' })
   @ApiQuery({ name: 'role', required: false, enum: Role, description: 'Filter by role' })
-  @ApiQuery({ name: 'isActive', required: false, type: Boolean, description: 'Filter by active status' })
+  @ApiQuery({
+    name: 'isActive',
+    required: false,
+    type: Boolean,
+    description: 'Filter by active status',
+  })
   @ApiResponse({
     status: 200,
     description: 'Users retrieved successfully',
@@ -122,7 +127,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserResponseDto> {
     // Users can only update their own profile (excluding role and isActive)
-    const { role, isActive, ...allowedUpdates } = updateUserDto;
+    const { ...allowedUpdates } = updateUserDto;
     return this.usersService.update(user.id, allowedUpdates);
   }
 

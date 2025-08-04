@@ -17,9 +17,7 @@ export class NestWinstonLogger implements NestLoggerService {
           return `${timestamp} ${level}: ${contextStr}${message}${traceStr}`;
         })
       ),
-      transports: [
-        new winston.transports.Console(),
-      ],
+      transports: [new winston.transports.Console()],
     });
   }
 

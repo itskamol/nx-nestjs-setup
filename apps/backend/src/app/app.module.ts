@@ -1,6 +1,6 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 // Configuration
 import { ConfigModule } from './config/config.module';
@@ -20,9 +20,6 @@ import { UsersModule } from './users/users.module';
 // Guards
 import { JwtAuthGuard } from './common/guards/auth.guard';
 
-// Interceptors
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-
 // Middleware
 import { SecurityMiddleware } from './common/middleware/security.middleware';
 
@@ -37,7 +34,7 @@ import { AppService } from './app.service';
   imports: [
     // Configuration (must be first)
     ConfigModule,
-    
+
     // Rate limiting
     ThrottlerModule.forRoot([
       {
@@ -69,13 +66,10 @@ import { AppService } from './app.service';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(SecurityMiddleware)
-      .forRoutes('*path'); // Apply to all routes using new syntax
+    consumer.apply(SecurityMiddleware).forRoutes('*path'); // Apply to all routes using new syntax
   }
 }

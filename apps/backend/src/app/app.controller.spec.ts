@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthCheckService } from './common/services/health-check.service';
-import { AppConfigService } from './config/config.service';
 
 describe('AppController', () => {
   let app: TestingModule;
@@ -29,7 +28,10 @@ describe('AppController', () => {
         services: {
           database: { status: 'healthy', responseTime: 10 },
           cache: { status: 'healthy', responseTime: 5 },
-          memory: { status: 'healthy', details: { heapUsed: 50, heapTotal: 100, usagePercent: 50 } },
+          memory: {
+            status: 'healthy',
+            details: { heapUsed: 50, heapTotal: 100, usagePercent: 50 },
+          },
         },
       }),
       getDetailedHealthStatus: jest.fn().mockResolvedValue({
@@ -41,7 +43,10 @@ describe('AppController', () => {
         services: {
           database: { status: 'healthy', responseTime: 10 },
           cache: { status: 'healthy', responseTime: 5 },
-          memory: { status: 'healthy', details: { heapUsed: 50, heapTotal: 100, usagePercent: 50 } },
+          memory: {
+            status: 'healthy',
+            details: { heapUsed: 50, heapTotal: 100, usagePercent: 50 },
+          },
         },
       }),
     };

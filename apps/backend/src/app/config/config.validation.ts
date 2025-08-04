@@ -1,5 +1,14 @@
-import { IsString, IsNumber, IsBoolean, IsOptional, IsArray, IsIn, Min, Max, validateSync } from 'class-validator';
-import { plainToClass, Transform } from 'class-transformer';
+import {
+  IsBoolean,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  validateSync,
+} from 'class-validator';
+import { Transform, plainToClass } from 'class-transformer';
 
 export class EnvironmentVariables {
   @IsNumber()
@@ -107,7 +116,7 @@ export function validateConfig(config: Record<string, unknown>) {
       const constraints = error.constraints;
       return `${error.property}: ${Object.values(constraints || {}).join(', ')}`;
     });
-    
+
     throw new Error(`Configuration validation failed:\n${errorMessages.join('\n')}`);
   }
 

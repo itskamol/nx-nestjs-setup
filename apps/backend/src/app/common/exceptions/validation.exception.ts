@@ -94,7 +94,10 @@ export class ValidationException extends HttpException {
     return new ValidationException(errors, message);
   }
 
-  static fromFieldErrors(fieldErrors: Record<string, string>, message?: string): ValidationException {
+  static fromFieldErrors(
+    fieldErrors: Record<string, string>,
+    message?: string
+  ): ValidationException {
     const errors: ValidationErrorDetail[] = Object.entries(fieldErrors).map(([field, msg]) => ({
       field,
       message: msg,

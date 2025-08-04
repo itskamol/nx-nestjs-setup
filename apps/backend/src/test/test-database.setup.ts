@@ -7,7 +7,9 @@ export class TestDatabaseManager {
 
   private constructor() {
     // Use the existing database for tests
-    this.testDatabaseUrl = process.env['DATABASE_URL'] || 'postgresql://postgres:12345@localhost:5432/testdb?schema=public';
+    this.testDatabaseUrl =
+      process.env['DATABASE_URL'] ||
+      'postgresql://postgres:12345@localhost:5432/testdb?schema=public';
 
     this.prisma = new PrismaClient({
       datasources: {
@@ -43,9 +45,7 @@ export class TestDatabaseManager {
   async cleanDatabase(): Promise<void> {
     try {
       // Clean all tables in reverse dependency order
-      await this.prisma.$transaction([
-        this.prisma.user.deleteMany(),
-      ]);
+      await this.prisma.$transaction([this.prisma.user.deleteMany()]);
 
       console.log('🧹 Test database cleaned');
     } catch (error) {

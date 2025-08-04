@@ -1,9 +1,9 @@
 import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
   BadRequestException,
+  ConflictException,
+  Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UsersService } from '../users/users.service';
@@ -14,7 +14,6 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponse, Role } from '@shared/types';
-import { APP_CONSTANTS } from '@shared/constants';
 
 @Injectable()
 export class AuthService {
@@ -62,12 +61,9 @@ export class AuthService {
 
       this.logger.log(`User registered successfully: ${user.email}`);
 
-      return this.jwtService.createAuthResponse(user as any, tokens);
+      return this.jwtService.createAuthResponse(user as User, tokens);
     } catch (error) {
-      if (
-        error instanceof ConflictException ||
-        error instanceof BadRequestException
-      ) {
+      if (error instanceof ConflictException || error instanceof BadRequestException) {
         throw error;
       }
       this.logger.error('Registration failed', error);
@@ -123,14 +119,10 @@ export class AuthService {
   async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<AuthResponse> {
     try {
       // Verify refresh token
-      const payload = await this.jwtService.verifyRefreshToken(
-        refreshTokenDto.refreshToken
-      );
+      const payload = await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
 
       // Check if token is blacklisted
-      const isBlacklisted = await this.isTokenBlacklisted(
-        refreshTokenDto.refreshToken
-      );
+      const isBlacklisted = await this.isTokenBlacklisted(refreshTokenDto.refreshToken);
       if (isBlacklisted) {
         throw new UnauthorizedException('Refresh token has been revoked');
       }
@@ -212,9 +204,7 @@ export class AuthService {
       }
 
       // Validate new password strength
-      const passwordValidation = this.passwordService.validatePasswordStrength(
-        newPassword
-      );
+      const passwordValidation = this.passwordService.validatePasswordStrength(newPassword);
 
       if (!passwordValidation.isValid) {
         throw new BadRequestException({
@@ -228,10 +218,7 @@ export class AuthService {
 
       this.logger.log(`Password changed for user: ${userId}`);
     } catch (error) {
-      if (
-        error instanceof UnauthorizedException ||
-        error instanceof BadRequestException
-      ) {
+      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
         throw error;
       }
       this.logger.error(`Password change failed for user: ${userId}`, error);

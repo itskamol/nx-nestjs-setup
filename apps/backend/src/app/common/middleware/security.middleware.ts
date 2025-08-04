@@ -1,5 +1,5 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
@@ -32,10 +32,7 @@ export class SecurityMiddleware implements NestMiddleware {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
     // Permissions policy
-    res.setHeader(
-      'Permissions-Policy',
-      'camera=(), microphone=(), geolocation=(), payment=()'
-    );
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
 
     // Content Security Policy (basic)
     res.setHeader(
@@ -114,14 +111,7 @@ export class SecurityMiddleware implements NestMiddleware {
     ];
 
     // Path traversal patterns
-    const pathTraversalPatterns = [
-      '../',
-      '..\\',
-      '..%2f',
-      '..%5c',
-      '%2e%2e%2f',
-      '%2e%2e%5c',
-    ];
+    const pathTraversalPatterns = ['../', '..\\', '..%2f', '..%5c', '%2e%2e%2f', '%2e%2e%5c'];
 
     const allContent = `${url} ${body} ${query}`;
 

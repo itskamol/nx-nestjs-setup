@@ -30,7 +30,7 @@ export class HealthCheckService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly cacheService: CacheService
-  ) { }
+  ) {}
 
   async getHealthStatus(): Promise<HealthCheckResult> {
     const timestamp = new Date().toISOString();
@@ -155,14 +155,16 @@ export class HealthCheckService {
     }
   }
 
-  async getDetailedHealthStatus(): Promise<HealthCheckResult & {
-    system: {
-      nodeVersion: string;
-      platform: string;
-      arch: string;
-      cpuUsage: NodeJS.CpuUsage;
-    };
-  }> {
+  async getDetailedHealthStatus(): Promise<
+    HealthCheckResult & {
+      system: {
+        nodeVersion: string;
+        platform: string;
+        arch: string;
+        cpuUsage: NodeJS.CpuUsage;
+      };
+    }
+  > {
     const basicHealth = await this.getHealthStatus();
 
     return {

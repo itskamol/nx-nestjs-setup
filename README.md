@@ -5,6 +5,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 ## 🚀 Features
 
 ### Core Technologies
+
 - **NestJS** - Progressive Node.js framework
 - **TypeScript** - Type-safe development
 - **Prisma** - Type-safe database ORM
@@ -15,6 +16,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 - **Nx** - Monorepo management
 
 ### Security Features
+
 - JWT-based authentication with refresh tokens
 - Role-based access control (RBAC)
 - Password hashing with bcrypt
@@ -25,6 +27,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 - XSS protection
 
 ### Performance & Reliability
+
 - Redis caching with multiple strategies
 - Database connection pooling
 - Request/response logging
@@ -34,6 +37,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 - Comprehensive testing suite
 
 ### Development Experience
+
 - Hot reload development server
 - Swagger/OpenAPI documentation
 - ESLint and Prettier configuration
@@ -44,7 +48,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 
 ## 📋 Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL 13+
 - Redis 6+
 - Docker (optional)
@@ -54,23 +58,27 @@ A production-ready NestJS backend application with comprehensive features, secur
 ### Local Development
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd nestjs-backend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.development .env
    # Edit .env with your configuration
    ```
 
 4. **Start PostgreSQL and Redis**
+
    ```bash
    # Using Docker
    docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:15
@@ -78,6 +86,7 @@ A production-ready NestJS backend application with comprehensive features, secur
    ```
 
 5. **Run database migrations**
+
    ```bash
    npm run db:migrate
    npm run db:seed
@@ -91,11 +100,13 @@ A production-ready NestJS backend application with comprehensive features, secur
 ### Docker Development
 
 1. **Start all services**
+
    ```bash
    npm run docker:up
    ```
 
 2. **View logs**
+
    ```bash
    npm run docker:logs
    ```
@@ -112,7 +123,7 @@ A production-ready NestJS backend application with comprehensive features, secur
 Create environment files for different stages:
 
 - `.env.development` - Development configuration
-- `.env.staging` - Staging configuration  
+- `.env.staging` - Staging configuration
 - `.env.production` - Production configuration
 
 #### Required Variables
@@ -153,18 +164,21 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:4200
 ## 🏃‍♂️ Running the Application
 
 ### Development
+
 ```bash
 npm run start:dev          # Hot reload development server
 npm run start:debug        # Debug mode with inspector
 ```
 
 ### Production
+
 ```bash
 npm run build:prod         # Build for production
 npm run start:prod         # Start production server
 ```
 
 ### Testing
+
 ```bash
 npm run test               # Run unit tests
 npm run test:e2e          # Run E2E tests
@@ -173,6 +187,7 @@ npm run test:all          # Run all tests
 ```
 
 ### Database Operations
+
 ```bash
 npm run db:generate       # Generate Prisma client
 npm run db:migrate        # Run migrations
@@ -181,6 +196,7 @@ npm run db:studio         # Open Prisma Studio
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint              # Run ESLint
 npm run lint:fix          # Fix ESLint issues
@@ -191,6 +207,7 @@ npm run format:check      # Check code formatting
 ## 📚 API Documentation
 
 When running in development mode, Swagger documentation is available at:
+
 ```
 http://localhost:3000/api/docs
 ```
@@ -212,7 +229,7 @@ POST /api/auth/register
 # Login
 POST /api/auth/login
 {
-  "email": "user@example.com", 
+  "email": "user@example.com",
   "password": "Password123!"
 }
 
@@ -231,6 +248,7 @@ After seeding the database:
 ## 🏗️ Architecture
 
 ### Project Structure
+
 ```
 apps/
 ├── backend/                 # Main NestJS application
@@ -278,7 +296,7 @@ npm run test:all
 
 # Run specific test types
 npm run test:unit
-npm run test:integration  
+npm run test:integration
 npm run test:e2e
 
 # Run tests with coverage
@@ -310,7 +328,7 @@ npm run docker:run
 # Staging deployment
 npm run deploy:staging
 
-# Production deployment  
+# Production deployment
 npm run deploy:prod
 ```
 
@@ -334,7 +352,7 @@ The application provides several health check endpoints:
 ### Health Monitoring
 
 - Database connectivity checks
-- Redis connectivity checks  
+- Redis connectivity checks
 - Memory usage monitoring
 - Custom health indicators
 
@@ -348,6 +366,7 @@ The application provides several health check endpoints:
 ## 🛡️ Security
 
 ### Authentication & Authorization
+
 - JWT tokens with secure secret management
 - Password hashing with bcrypt (12 rounds)
 - Role-based access control
@@ -355,6 +374,7 @@ The application provides several health check endpoints:
 - Session invalidation
 
 ### Input Validation
+
 - Global validation pipes
 - DTO validation with class-validator
 - Custom validation decorators
@@ -362,6 +382,7 @@ The application provides several health check endpoints:
 - XSS protection
 
 ### Security Headers
+
 - Helmet.js security headers
 - CORS configuration
 - Rate limiting
