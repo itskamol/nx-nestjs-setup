@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { join } from 'path';
+import * as express from 'express';
 
 import { AppModule } from './app/app.module';
 import { NestWinstonLogger } from './app/common/logger/nest-logger.service';
@@ -57,6 +59,12 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix(configService.apiPrefix);
+
+  // Serve static files (including favicon.ico)
+  app.use('/favicon.ico', express.static(join(__dirname, 'assets'), {
+    maxAge: '1d',
+    etag: false
+  }));
 
   // Global validation pipe
   app.useGlobalPipes(

@@ -28,6 +28,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    // Ignore favicon.ico requests to reduce noise in logs
+    if (request.url === '/favicon.ico') {
+      response.status(204).send();
+      return;
+    }
+
     const { status, error } = this.getErrorResponse(exception);
 
     const errorResponse = {
