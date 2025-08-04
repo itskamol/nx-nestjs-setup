@@ -8,13 +8,27 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2020",
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "paths": {
+      "@nestjs-backend/shared": ["libs/shared/src/index.ts"],
+      "@shared/*": ["libs/shared/src/*"],
+      "@shared/constants": ["libs/shared/src/constants"],
+      "@shared/types": ["libs/shared/src/types"],
+      "@shared/utils": ["libs/shared/src/utils"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
