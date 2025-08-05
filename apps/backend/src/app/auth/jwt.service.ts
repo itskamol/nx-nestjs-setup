@@ -43,11 +43,11 @@ export class JwtService {
 
       // Generate refresh token with longer expiration
       const refreshToken = this.nestJwtService.sign(
-        { 
-          sub: user.id, 
+        {
+          sub: user.id,
           type: 'refresh',
           iat: Math.floor(Date.now() / 1000),
-          jti: Math.random().toString(36).substring(2) // Add random component to ensure uniqueness
+          jti: Math.random().toString(36).substring(2), // Add random component to ensure uniqueness
         },
         {
           secret: jwtConfig.refreshSecret,

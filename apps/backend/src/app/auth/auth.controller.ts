@@ -179,8 +179,8 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getMe(@CurrentUser() user: User) {
     // Remove password from response
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    user.password = undefined; // Ensure password is not included
+    return user;
   }
 
   @Get('health')

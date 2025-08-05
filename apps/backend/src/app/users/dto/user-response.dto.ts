@@ -66,7 +66,7 @@ export class UserResponseDto {
 
   constructor(partial: Partial<UserResponseDto>) {
     // Explicitly exclude password field
-    const { password, ...userWithoutPassword } = partial as any;
-    Object.assign(this, userWithoutPassword);
+    partial.password = undefined;
+    Object.assign(this, partial);
   }
 }

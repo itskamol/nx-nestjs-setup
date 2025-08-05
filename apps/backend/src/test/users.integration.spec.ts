@@ -56,7 +56,9 @@ describe('Users Integration Tests', () => {
     app.setGlobalPrefix(configService.apiPrefix);
     // Apply global interceptors and filters like main.ts
     const { GlobalExceptionFilter } = await import('../app/common/filters/global-exception.filter');
-    const { TransformInterceptor } = await import('../app/common/interceptors/transform.interceptor');
+    const { TransformInterceptor } = await import(
+      '../app/common/interceptors/transform.interceptor'
+    );
 
     app.useGlobalFilters(new GlobalExceptionFilter());
     app.useGlobalInterceptors(new TransformInterceptor());

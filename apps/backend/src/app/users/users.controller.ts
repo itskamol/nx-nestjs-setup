@@ -127,8 +127,9 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserResponseDto> {
     // Users can only update their own profile (excluding role and isActive)
-    const { role, isActive, ...allowedUpdates } = updateUserDto;
-    return this.usersService.update(user.id, allowedUpdates);
+    updateUserDto.role = undefined;
+    updateUserDto.isActive = undefined;
+    return this.usersService.update(user.id, updateUserDto);
   }
 
   @Patch(':id')
