@@ -61,10 +61,13 @@ async function bootstrap() {
   app.setGlobalPrefix(configService.apiPrefix);
 
   // Serve static files (including favicon.ico)
-  app.use('/favicon.ico', express.static(join(__dirname, 'assets'), {
-    maxAge: '1d',
-    etag: false
-  }));
+  app.use(
+    '/favicon.ico',
+    express.static(join(__dirname, 'assets'), {
+      maxAge: '1d',
+      etag: false,
+    })
+  );
 
   // Global validation pipe
   app.useGlobalPipes(

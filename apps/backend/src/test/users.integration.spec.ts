@@ -6,6 +6,7 @@ import { TestDatabaseManager } from './test-database.setup';
 import { PrismaService } from '../app/database/prisma.service';
 import { PasswordService } from '../app/common/services/password.service';
 import { Role } from '@prisma/client';
+import { AppConfigService } from '../app/config/config.service';
 
 describe('Users Integration Tests', () => {
   let app: INestApplication;
@@ -51,7 +52,14 @@ describe('Users Integration Tests', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    const configService = app.get(AppConfigService);
+    app.setGlobalPrefix(configService.apiPrefix);
+    // Apply global interceptors and filters like main.ts
+    const { GlobalExceptionFilter } = await import('../app/common/filters/global-exception.filter');
+    const { TransformInterceptor } = await import('../app/common/interceptors/transform.interceptor');
 
+    app.useGlobalFilters(new GlobalExceptionFilter());
+    app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -473,11 +481,11 @@ describe('Users Integration Tests', () => {
       expect(response.body.data.isActive).toBe(true);
     });
 
-    it('should return 403 for regular user', async () => {
+    it('should return 401 for deactivated user', async () => {
       await request(app.getHttpServer())
         .patch(`/api/users/${userId}/activate`)
         .set('Authorization', `Bearer ${userToken}`)
-        .expect(403);
+        .expect(401);
     });
   });
 

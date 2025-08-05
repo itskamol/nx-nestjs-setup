@@ -37,7 +37,7 @@ export interface JwtPayload {
   email: string;
   role: string;
   iat: number;
-  exp: number;
+  exp?: number; // Optional since JWT library sets this automatically
 }
 
 export interface AuthResponse {

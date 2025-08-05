@@ -165,13 +165,34 @@ export class UsersService {
 
       // Cache the user
       await this.cacheUser(user);
-
+      user.password = undefined; // Exclude password from response
       return new UserResponseDto(user);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       this.logger.error(`Failed to fetch user: ${id}`, error);
+      throw new Error('Failed to fetch user');
+    }
+  }
+
+  async findOneWithPassword(id: string): Promise<User> {
+    try {
+      // Get from database with password
+      const user = await this.prismaService.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      this.logger.error(`Failed to fetch user with password: ${id}`, error);
       throw new Error('Failed to fetch user');
     }
   }

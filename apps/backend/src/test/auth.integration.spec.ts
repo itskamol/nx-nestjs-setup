@@ -5,6 +5,7 @@ import { AppModule } from '../app/app.module';
 import { TestDatabaseManager } from './test-database.setup';
 import { PrismaService } from '../app/database/prisma.service';
 import { PasswordService } from '../app/common/services/password.service';
+import { AppConfigService } from '../app/config/config.service';
 import { Role } from '@prisma/client';
 
 describe('Auth Integration Tests', () => {
@@ -32,6 +33,9 @@ describe('Auth Integration Tests', () => {
     app = moduleFixture.createNestApplication();
 
     // Apply the same configuration as main.ts
+    const configService = app.get(AppConfigService);
+    app.setGlobalPrefix(configService.apiPrefix);
+    
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -42,6 +46,13 @@ describe('Auth Integration Tests', () => {
         },
       })
     );
+
+    // Apply global interceptors and filters like main.ts
+    const { GlobalExceptionFilter } = await import('../app/common/filters/global-exception.filter');
+    const { TransformInterceptor } = await import('../app/common/interceptors/transform.interceptor');
+    
+    app.useGlobalFilters(new GlobalExceptionFilter());
+    app.useGlobalInterceptors(new TransformInterceptor());
 
     await app.init();
 

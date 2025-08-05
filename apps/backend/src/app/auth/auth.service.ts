@@ -187,8 +187,8 @@ export class AuthService {
     newPassword: string
   ): Promise<void> {
     try {
-      // Get user
-      const user = await this.usersService.findOne(userId);
+      // Get user with password
+      const user = await this.usersService.findOneWithPassword(userId);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
@@ -196,7 +196,7 @@ export class AuthService {
       // Verify current password
       const isCurrentPasswordValid = await this.passwordService.comparePassword(
         currentPassword,
-        (user as any).password
+        user.password
       );
 
       if (!isCurrentPasswordValid) {

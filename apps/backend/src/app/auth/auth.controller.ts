@@ -179,7 +179,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getMe(@CurrentUser() user: User) {
     // Remove password from response
-    const { ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 

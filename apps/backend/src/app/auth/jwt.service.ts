@@ -30,7 +30,7 @@ export class JwtService {
         email: user.email,
         role: user.role,
         iat: Math.floor(Date.now() / 1000),
-        exp: 0, // Will be set by JWT service
+        // exp will be set automatically by JWT service based on expiresIn
       };
 
       const jwtConfig = this.configService.jwt;
@@ -43,7 +43,12 @@ export class JwtService {
 
       // Generate refresh token with longer expiration
       const refreshToken = this.nestJwtService.sign(
-        { sub: user.id, type: 'refresh' },
+        { 
+          sub: user.id, 
+          type: 'refresh',
+          iat: Math.floor(Date.now() / 1000),
+          jti: Math.random().toString(36).substring(2) // Add random component to ensure uniqueness
+        },
         {
           secret: jwtConfig.refreshSecret,
           expiresIn: jwtConfig.refreshExpiresIn,
