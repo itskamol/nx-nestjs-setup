@@ -27,6 +27,24 @@ export interface LoggingConfig {
   maxSize: string;
 }
 
+export interface FaceRecognitionConfig {
+  enabled: boolean;
+  hikvision: {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+  };
+  webhook: {
+    secret: string;
+    endpoint: string;
+  };
+  storage: {
+    retentionDays: number;
+    maxRecords: number;
+  };
+}
+
 export interface AppConfig {
   port: number;
   nodeEnv: string;
@@ -36,6 +54,7 @@ export interface AppConfig {
   jwt: JwtConfig;
   redis: RedisConfig;
   logging: LoggingConfig;
+  faceRecognition: FaceRecognitionConfig;
 }
 
 export default registerAs(
@@ -73,6 +92,24 @@ export default registerAs(
       enableFileLogging: process.env['ENABLE_FILE_LOGGING'] === 'true',
       maxFiles: process.env['LOG_MAX_FILES'] || '14d',
       maxSize: process.env['LOG_MAX_SIZE'] || '20m',
+    },
+
+    faceRecognition: {
+      enabled: process.env['FACE_RECOGNITION_ENABLED'] === 'true',
+      hikvision: {
+        host: process.env['HIKVISION_HOST'] || '192.168.1.100',
+        port: parseInt(process.env['HIKVISION_PORT'] || '80', 10),
+        username: process.env['HIKVISION_USERNAME'] || 'admin',
+        password: process.env['HIKVISION_PASSWORD'] || 'password',
+      },
+      webhook: {
+        secret: process.env['FACE_WEBHOOK_SECRET'] || 'your-webhook-secret',
+        endpoint: process.env['FACE_WEBHOOK_ENDPOINT'] || '/api/face-recognition/webhook',
+      },
+      storage: {
+        retentionDays: parseInt(process.env['FACE_RETENTION_DAYS'] || '30', 10),
+        maxRecords: parseInt(process.env['FACE_MAX_RECORDS'] || '10000', 10),
+      },
     },
   })
 );

@@ -282,7 +282,7 @@ describe('Users Integration Tests', () => {
       const user = await prismaService.user.findUnique({
         where: { email: regularUser.email },
       });
-      userId = user!.id;
+      userId = user?.id;
     });
 
     it('should get user by ID as admin', async () => {
@@ -379,7 +379,7 @@ describe('Users Integration Tests', () => {
       const user = await prismaService.user.findUnique({
         where: { email: regularUser.email },
       });
-      userId = user!.id;
+      userId = user?.id;
     });
 
     it('should update user as admin', async () => {
@@ -423,7 +423,7 @@ describe('Users Integration Tests', () => {
       const user = await prismaService.user.findUnique({
         where: { email: regularUser.email },
       });
-      userId = user!.id;
+      userId = user?.id;
     });
 
     it('should delete user as admin', async () => {
@@ -465,7 +465,7 @@ describe('Users Integration Tests', () => {
       const user = await prismaService.user.findUnique({
         where: { email: regularUser.email },
       });
-      userId = user!.id;
+      userId = user?.id;
 
       // Deactivate user first
       await prismaService.user.update({
@@ -498,7 +498,7 @@ describe('Users Integration Tests', () => {
       const user = await prismaService.user.findUnique({
         where: { email: regularUser.email },
       });
-      userId = user!.id;
+      userId = user?.id;
     });
 
     it('should deactivate user as admin', async () => {

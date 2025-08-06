@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '@shared/types';
+import { Role } from '@prisma/client';
 import { User } from '@prisma/client';
 
 export const ROLES_KEY = 'roles';

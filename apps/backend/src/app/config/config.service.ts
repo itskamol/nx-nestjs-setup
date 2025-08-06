@@ -1,33 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { AppConfig, DatabaseConfig, JwtConfig, LoggingConfig, RedisConfig } from './configuration';
+import {
+  AppConfig,
+  DatabaseConfig,
+  FaceRecognitionConfig,
+  JwtConfig,
+  LoggingConfig,
+  RedisConfig,
+} from './configuration';
 
 @Injectable()
 export class AppConfigService {
-  constructor(private readonly configService: NestConfigService<AppConfig>) {}
+  constructor(private readonly configService: NestConfigService) {}
 
   get port(): number {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return config?.port || 3000;
   }
 
   get nodeEnv(): string {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return config?.nodeEnv || 'development';
   }
 
   get apiPrefix(): string {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return config?.apiPrefix || 'api';
   }
 
   get corsOrigins(): string[] {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return config?.corsOrigins || ['http://localhost:3000'];
   }
 
   get database(): DatabaseConfig {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return (
       config?.database || {
         url: 'postgresql://user:password@localhost:5432/nestjs_backend',
@@ -38,7 +45,7 @@ export class AppConfigService {
   }
 
   get jwt(): JwtConfig {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return (
       config?.jwt || {
         secret: 'default-secret',
@@ -50,7 +57,7 @@ export class AppConfigService {
   }
 
   get redis(): RedisConfig {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return (
       config?.redis || {
         host: 'localhost',
@@ -62,7 +69,7 @@ export class AppConfigService {
   }
 
   get logging(): LoggingConfig {
-    const config = (this.configService as any).get('app');
+    const config = this.configService.get<AppConfig>('app');
     return (
       config?.logging || {
         level: 'info',
@@ -83,5 +90,28 @@ export class AppConfigService {
 
   get isStaging(): boolean {
     return this.nodeEnv === 'staging';
+  }
+
+  get faceRecognition(): FaceRecognitionConfig {
+    const config = this.configService.get<AppConfig>('app');
+    return (
+      config?.faceRecognition || {
+        enabled: false,
+        hikvision: {
+          host: '192.168.1.100',
+          port: 80,
+          username: 'admin',
+          password: 'password',
+        },
+        webhook: {
+          secret: 'your-webhook-secret',
+          endpoint: '/api/face-recognition/webhook',
+        },
+        storage: {
+          retentionDays: 30,
+          maxRecords: 10000,
+        },
+      }
+    );
   }
 }

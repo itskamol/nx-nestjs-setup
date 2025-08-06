@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 import { PasswordService } from '../common/services/password.service';
 import { CacheService } from '../common/cache/cache.service';
 import { Role as PrismaRole, User } from '@prisma/client';
-import { Role } from '@shared/types';
+import { Role } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 

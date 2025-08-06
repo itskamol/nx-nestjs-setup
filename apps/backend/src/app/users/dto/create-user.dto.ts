@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Role } from '@shared/types';
+import { Role } from '@prisma/client';
 import { APP_CONSTANTS } from '@shared/constants';
 
 export class CreateUserDto {

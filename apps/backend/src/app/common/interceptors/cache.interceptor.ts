@@ -13,7 +13,10 @@ import {
 export class CacheInterceptor implements NestInterceptor {
   private readonly logger = new Logger(CacheInterceptor.name);
 
-  constructor(private readonly cacheService: CacheService, private readonly reflector: Reflector) {}
+  constructor(
+    private readonly cacheService: CacheService,
+    private readonly reflector: Reflector
+  ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const cacheKey = this.reflector.get<string>(CACHE_KEY_METADATA, context.getHandler());

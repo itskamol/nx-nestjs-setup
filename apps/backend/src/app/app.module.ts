@@ -16,6 +16,7 @@ import { CacheModule } from './common/cache/cache.module';
 // Feature modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { FaceRecognitionModule } from './face-recognition/face-recognition.module';
 
 // Guards
 import { JwtAuthGuard } from './common/guards/auth.guard';
@@ -51,6 +52,7 @@ import { AppService } from './app.service';
     // Feature modules
     AuthModule,
     UsersModule,
+    FaceRecognitionModule,
   ],
   controllers: [AppController],
   providers: [

@@ -29,8 +29,8 @@ import { JwtAuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/user.decorator';
-import { PaginatedResponse, Role } from '@shared/types';
-import { User } from '@prisma/client';
+import { PaginatedResponse } from '@shared/types';
+import { Role, User } from '@prisma/client';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT-auth')

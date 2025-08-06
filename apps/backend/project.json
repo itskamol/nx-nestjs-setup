@@ -50,7 +50,10 @@
       }
     },
     "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{options.outputPath}"],
       "options": {
+        "jestConfig": "apps/backend/jest.config.ts",
         "passWithNoTests": true
       }
     },

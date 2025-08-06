@@ -13,7 +13,8 @@ import { CacheService } from '../common/cache/cache.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthResponse, Role } from '@shared/types';
+import { AuthResponse } from '@shared/types';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {

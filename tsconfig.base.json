@@ -27,7 +27,8 @@
       "@shared/*": ["libs/shared/src/*"],
       "@shared/constants": ["libs/shared/src/constants"],
       "@shared/types": ["libs/shared/src/types"],
-      "@shared/utils": ["libs/shared/src/utils"]
+      "@shared/utils": ["libs/shared/src/utils"],
+      "@backend/*": ["apps/backend/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
