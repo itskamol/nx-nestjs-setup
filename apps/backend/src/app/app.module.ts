@@ -3,29 +3,26 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 // Configuration
-import { ConfigModule } from './config/config.module';
-import { AppConfigService } from './config/config.service';
+import { AppConfigService, ConfigModule } from './config';
 
 // Database
-import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from './database';
 
 // Common modules
-import { LoggerModule } from './common/logger/logger.module';
-import { CacheModule } from './common/cache/cache.module';
+import {
+  CacheModule,
+  HealthCheckService,
+  JwtAuthGuard,
+  LoggerModule,
+  SecurityMiddleware,
+  ServicesModule,
+  WebSocketModule,
+} from './common';
 
 // Feature modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { FaceRecognitionModule } from './face-recognition/face-recognition.module';
-
-// Guards
-import { JwtAuthGuard } from './common/guards/auth.guard';
-
-// Middleware
-import { SecurityMiddleware } from './common/middleware/security.middleware';
-
-// Services
-import { HealthCheckService } from './common/services/health-check.service';
 
 // Controllers and Services
 import { AppController } from './app.controller';
@@ -48,11 +45,13 @@ import { AppService } from './app.service';
     DatabaseModule,
     LoggerModule,
     CacheModule,
+    ServicesModule,
 
     // Feature modules
     AuthModule,
     UsersModule,
     FaceRecognitionModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [

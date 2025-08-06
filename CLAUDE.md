@@ -5,38 +5,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Building and Running
-- `npm run start:dev` - Start development server with hot reload
-- `npm run start:debug` - Start debug mode with inspector
-- `npm run build` - Build the application
-- `npm run build:prod` - Build for production
-- `npm run start:prod` - Start production server
+- `pnpm start:dev` - Start development server with hot reload
+- `pnpm start:debug` - Start debug mode with inspector
+- `pnpm build` - Build the application
+- `pnpm build:prod` - Build for production
+- `pnpm start:prod` - Start production server
 
 ### Testing
-- `npm run test` - Run unit tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:cov` - Run tests with coverage
-- `npm run test:e2e` - Run E2E tests
-- `npm run test:integration` - Run integration tests
-- `npm run test:unit` - Run unit tests only
-- `npm run test:all` - Run all tests (unit, integration, E2E)
+- `pnpm test` - Run unit tests
+- `pnpm test:watch` - Run tests in watch mode
+- `pnpm test:cov` - Run tests with coverage
+- `pnpm test:e2e` - Run E2E tests
+- `pnpm test:integration` - Run integration tests
+- `pnpm test:unit` - Run unit tests only
+- `pnpm test:all` - Run all tests (unit, integration, E2E)
 
 ### Code Quality
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues automatically
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
+- `pnpm lint` - Run ESLint
+- `pnpm lint:fix` - Fix ESLint issues automatically
+- `pnpm format` - Format code with Prettier
+- `pnpm format:check` - Check code formatting
 
 ### Database Operations
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:migrate` - Run database migrations
-- `npm run db:push` - Push schema changes to database
-- `npm run db:seed` - Seed database with test data
-- `npm run db:studio` - Open Prisma Studio
+- `pnpm db:generate` - Generate Prisma client
+- `pnpm db:migrate` - Run database migrations
+- `pnpm db:push` - Push schema changes to database
+- `pnpm db:seed` - Seed database with test data
+- `pnpm db:studio` - Open Prisma Studio
 
 ### Docker Operations
-- `npm run docker:up` - Start all services with Docker
-- `npm run docker:down` - Stop Docker services
-- `npm run docker:logs` - View Docker logs
+- `pnpm docker:up` - Start all services with Docker
+- `pnpm docker:down` - Stop Docker services
+- `pnpm docker:logs` - View Docker logs
 
 ## Architecture Overview
 
@@ -51,6 +51,7 @@ This is a NestJS monorepo using Nx for workspace management. The application fol
 - **Caching**: Redis-based caching with multiple strategies and cache warming
 - **Logging**: Winston-based structured logging with file rotation
 - **Security**: Multiple layers including Helmet, CORS, rate limiting, and input validation
+- **Face Recognition**: Hikvision camera integration with real-time event processing
 
 **Project Structure:**
 ```
@@ -59,6 +60,7 @@ apps/
 │   ├── src/app/
 │   │   ├── auth/         # Authentication module
 │   │   ├── users/        # Users module
+│   │   ├── face-recognition/ # Face recognition module
 │   │   ├── common/       # Shared utilities and infrastructure
 │   │   ├── config/       # Configuration management
 │   │   └── database/     # Database configuration
@@ -85,6 +87,12 @@ apps/
 - Roles: USER, ADMIN, MODERATOR
 - Indexes: email (unique), role, isActive
 - Password excluded from responses by default
+
+**Face Recognition Models:**
+- **FaceRecord**: Stores enrolled face data with Hikvision face ID, image data, and face features
+- **FaceRecognitionEvent**: Tracks face detection/recognition events with timestamps and camera data
+- **Event Types**: DETECTED, RECOGNIZED, UNKNOWN, ENROLLED, UPDATED, DELETED
+- **Relationships**: Users can have multiple face records; face records can have multiple events
 
 ### Configuration Management
 
@@ -131,6 +139,13 @@ Key configuration sections:
 - Logging interceptor for request/response tracking
 - Cache interceptor for performance optimization
 
+**Face Recognition Features:**
+- **Hikvision Integration**: Connects to Hikvision face recognition cameras
+- **Face Enrollment**: Register faces with image data and biometric templates
+- **Real-time Events**: Webhook support for face detection/recognition events
+- **Event Processing**: Tracks confidence scores, camera locations, and timestamps
+- **Statistics**: Provides recognition rates, event counts, and system performance metrics
+
 ### Development Guidelines
 
 **Code Style:**
@@ -176,7 +191,22 @@ Swagger/OpenAPI documentation available at:
 
 ### Default Test Users
 
-After running `npm run db:seed`:
+After running `pnpm db:seed`:
 - **Admin**: `admin@example.com` / `Admin123!`
 - **User**: `user@example.com` / `User123!`
 - **Moderator**: `moderator@example.com` / `Moderator123!`
+
+### Face Recognition Endpoints
+
+**Core Operations:**
+- `POST /api/face-recognition/enroll` - Enroll a new face
+- `POST /api/face-recognition/recognize-base64` - Recognize faces from base64 image
+- `GET /api/face-recognition/records` - List face records with pagination
+- `GET /api/face-recognition/events` - List recognition events
+- `GET /api/face-recognition/stats` - Get system statistics
+- `POST /api/face-recognition/test-connection` - Test Hikvision connection
+
+**Webhook Support:**
+- Real-time event processing for face detection/recognition
+- Event types: DETECTED, RECOGNIZED, UNKNOWN, ENROLLED, UPDATED, DELETED
+- Camera location and confidence score tracking

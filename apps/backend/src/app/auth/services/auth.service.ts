@@ -6,15 +6,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { UsersService } from '../users/users.service';
-import { PasswordService } from '../common/services/password.service';
-import { JwtService } from './jwt.service';
-import { CacheService } from '../common/cache/cache.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UsersService } from '../../users/users.service';
+import { CacheService, PasswordService } from '../../common';
+import { LoginDto, RefreshTokenDto, RegisterDto } from '../dto';
 import { AuthResponse } from '@shared/types';
 import { Role } from '@prisma/client';
+import { JwtService } from './jwt.service';
 
 @Injectable()
 export class AuthService {

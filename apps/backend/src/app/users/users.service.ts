@@ -1,17 +1,16 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { Prisma, Role, User } from '@prisma/client';
-import { PrismaService } from '../database/prisma.service';
-import { PasswordService } from '../common/services/password.service';
-import { CacheService } from '../common/cache/cache.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { PrismaService } from '../database';
+import { CacheService, PasswordService } from '../common';
+import { CreateUserDto, UpdateUserDto, UserResponseDto } from './dto';
 import { PaginatedResponse } from '@shared/types';
 import { APP_CONSTANTS } from '@shared/constants';
 
@@ -30,7 +29,9 @@ export class UsersService {
 
   constructor(
     private readonly prismaService: PrismaService,
+    @Inject(forwardRef(() => PasswordService))
     private readonly passwordService: PasswordService,
+    @Inject(forwardRef(() => CacheService))
     private readonly cacheService: CacheService
   ) {}
 

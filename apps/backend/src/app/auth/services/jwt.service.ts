@@ -1,8 +1,8 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { AppConfigService } from '../config/config.service';
 import { AuthResponse, JwtPayload } from '@shared/types';
 import { User } from '@prisma/client';
+import { AppConfigService } from '@backend/app/config';
 
 export interface TokenPair {
   accessToken: string;

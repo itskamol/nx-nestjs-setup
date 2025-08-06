@@ -14,24 +14,42 @@ export enum FaceEventType {
 }
 
 export class CreateFaceRecordDto {
-  @ApiProperty({ description: 'User ID to associate with face record' })
+  @ApiProperty({
+    description: 'User ID to associate with face record',
+    example: 'u47ac10b-58cc-4372-a567-0e02b2c3d479',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   userId?: string;
 
-  @ApiProperty({ description: 'Hikvision face ID' })
+  @ApiProperty({
+    description: 'Hikvision face ID',
+    example: 'HIK_FACE_001',
+  })
   @IsString()
   faceId: string;
 
-  @ApiProperty({ description: 'Base64 encoded face image' })
+  @ApiProperty({
+    description: 'Base64 encoded face image',
+    example: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...',
+  })
   @IsString()
   imageData: string;
 
-  @ApiProperty({ description: 'Face features/template data' })
+  @ApiProperty({
+    description: 'Face features/template data',
+    example: 'FACE_TEMPLATE_DATA_BASE64_ENCODED',
+  })
   @IsString()
   faceData: string;
 
-  @ApiProperty({ description: 'Recognition confidence score' })
+  @ApiProperty({
+    description: 'Recognition confidence score',
+    example: 0.95,
+    minimum: 0,
+    maximum: 1,
+  })
   @IsNumber()
   @Min(0)
   @Max(1)
@@ -74,9 +92,13 @@ export class FaceRecognitionEventDto {
   @IsOptional()
   imageData?: string;
 
-  @ApiProperty({ description: 'Additional metadata' })
+  @ApiProperty({
+    description: 'Additional metadata',
+    example: { temperature: 36.5, doorId: 'D001' },
+    required: false,
+  })
   @IsOptional()
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class FaceRecognitionConfigDto {
@@ -116,23 +138,45 @@ export class FaceRecognitionConfigDto {
 }
 
 export class FaceWebhookDto {
-  @ApiProperty({ description: 'Webhook event type' })
+  @ApiProperty({
+    description: 'Webhook event type',
+    example: 'FACE_DETECTED',
+  })
   @IsString()
   eventType: string;
 
-  @ApiProperty({ description: 'Face ID' })
+  @ApiProperty({
+    description: 'Face ID',
+    example: 'HIK_FACE_001',
+  })
   @IsString()
   faceId: string;
 
-  @ApiProperty({ description: 'Recognition confidence' })
+  @ApiProperty({
+    description: 'Recognition confidence',
+    example: 0.92,
+    minimum: 0,
+    maximum: 1,
+  })
   @IsNumber()
   confidence: number;
 
-  @ApiProperty({ description: 'Timestamp of event' })
+  @ApiProperty({
+    description: 'Timestamp of event',
+    example: '2025-08-06T10:30:00.000Z',
+  })
   @IsString()
   timestamp: string;
 
-  @ApiProperty({ description: 'Camera information' })
+  @ApiProperty({
+    description: 'Camera information',
+    example: {
+      id: 'CAM_001',
+      name: 'Main Entrance Camera',
+      location: 'Main Entrance',
+    },
+    required: false,
+  })
   @IsOptional()
   camera?: {
     id: string;
@@ -140,11 +184,68 @@ export class FaceWebhookDto {
     location?: string;
   };
 
-  @ApiProperty({ description: 'Event image data' })
+  @ApiProperty({
+    description: 'Event image data',
+    example: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...',
+    required: false,
+  })
   @IsOptional()
   imageData?: string;
 
-  @ApiProperty({ description: 'Webhook signature for validation' })
+  @ApiProperty({
+    description: 'Webhook signature for validation',
+    example: 'sha256=a8b7c9d2e3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2y3z4',
+  })
   @IsString()
   signature: string;
+}
+
+export class UpdateFaceRecordDto {
+  @ApiProperty({
+    description: 'User ID to associate with face record',
+    example: 'u47ac10b-58cc-4372-a567-0e02b2c3d479',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  userId?: string;
+
+  @ApiProperty({
+    description: 'Updated face image data',
+    example: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  imageData?: string;
+
+  @ApiProperty({
+    description: 'Updated face features/template data',
+    example: 'UPDATED_FACE_TEMPLATE_DATA_BASE64',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  faceData?: string;
+
+  @ApiProperty({
+    description: 'Updated recognition confidence score',
+    example: 0.97,
+    minimum: 0,
+    maximum: 1,
+    required: false,
+  })
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  @IsOptional()
+  confidence?: number;
+
+  @ApiProperty({
+    description: 'Active status of face record',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  isActive?: boolean;
 }

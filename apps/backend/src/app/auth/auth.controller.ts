@@ -1,12 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { JwtAuthGuard } from '../common/guards/auth.guard';
-import { Public } from '../common/decorators/public.decorator';
-import { CurrentUser } from '../common/decorators/user.decorator';
+import { AuthService } from './services/auth.service';
+import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
+import { CurrentUser, JwtAuthGuard, Public } from '../common';
 import { AuthResponse } from '@shared/types';
 import { User } from '@prisma/client';
 

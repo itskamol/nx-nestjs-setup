@@ -91,10 +91,10 @@ async function main() {
       });
     }
 
-    console.log('✅ Development test users created');
+    console.log(' Development test users created');
   }
 
-  console.log('✅ Seeding completed successfully');
+  console.log(' Seeding completed successfully');
   console.log('Created users:');
   console.log('  Admin: admin@example.com / Admin123!');
   console.log('  User: user@example.com / User123!');

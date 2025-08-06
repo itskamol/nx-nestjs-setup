@@ -15,6 +15,18 @@ import {
   FaceRecognitionStatsEntity,
   FaceRecordEntity,
 } from '../entities';
+import { Prisma } from '@prisma/client';
+
+interface WebhookEventData {
+  faceId: string;
+  eventType: string;
+  confidence: number;
+  imageData?: string;
+  camera?: {
+    id: string;
+    location?: string;
+  };
+}
 
 @Injectable()
 export class FaceRecognitionService {
@@ -79,7 +91,9 @@ export class FaceRecognitionService {
         faceId: faceRecord.faceId,
         eventType: FaceEventType.ENROLLED,
         confidence: createFaceRecordDto.confidence,
-        metadata: { enrollmentMethod: 'manual' },
+        metadata: {
+          enrollmentMethod: 'manual',
+        },
       });
 
       // Clear cache
@@ -191,7 +205,7 @@ export class FaceRecognitionService {
     }
 
     const skip = (page - 1) * limit;
-    const where: any = {};
+    const where: Prisma.FaceRecordWhereInput = {};
 
     if (filters?.userId) where.userId = filters.userId;
     if (filters?.faceId) where.faceId = filters.faceId;
@@ -336,7 +350,7 @@ export class FaceRecognitionService {
     totalPages: number;
   }> {
     const skip = (page - 1) * limit;
-    const where: any = {};
+    const where: Prisma.FaceRecognitionEventWhereInput = {};
 
     if (filters?.faceRecordId) where.faceRecordId = filters.faceRecordId;
     if (filters?.faceId) where.faceId = filters.faceId;
@@ -401,12 +415,12 @@ export class FaceRecognitionService {
     });
   }
 
-  async processWebhookEvent(eventData: any): Promise<void> {
+  async processWebhookEvent(eventData: WebhookEventData): Promise<void> {
     try {
       // Validate and process webhook event from Hikvision
       const eventDto: FaceRecognitionEventDto = {
         faceId: eventData.faceId,
-        eventType: eventData.eventType,
+        eventType: eventData.eventType as FaceEventType,
         confidence: eventData.confidence,
         cameraId: eventData.camera?.id,
         location: eventData.camera?.location,
@@ -454,7 +468,7 @@ export class FaceRecognitionService {
         cameraId: eventDto.cameraId,
         location: eventDto.location,
         imageData: eventDto.imageData,
-        metadata: eventDto.metadata,
+        metadata: eventDto.metadata as Prisma.JsonValue,
       },
     });
 

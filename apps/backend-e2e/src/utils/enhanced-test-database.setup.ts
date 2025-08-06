@@ -67,7 +67,7 @@ export class EnhancedTestDatabaseManager {
     try {
       process.env['DATABASE_URL'] = this.testDatabaseUrl;
       await this.prisma.$connect();
-      console.log(`✅ Enhanced test database connected: ${this.testDatabaseUrl}`);
+      console.log(` Enhanced test database connected: ${this.testDatabaseUrl}`);
     } catch (error) {
       console.error('❌ Failed to connect to enhanced test database:', error);
       throw error;

@@ -6,12 +6,13 @@ import { join } from 'path';
 import * as express from 'express';
 
 import { AppModule } from './app/app.module';
-import { NestWinstonLogger } from './app/common/logger/nest-logger.service';
-import { GlobalExceptionFilter } from './app/common/filters/global-exception.filter';
+import { NestWinstonLogger } from './app/common/logger';
+import { GlobalExceptionFilter } from './app/common/filters';
 
-import { TransformInterceptor } from './app/common/interceptors/transform.interceptor';
-import { AppConfigService } from './app/config/config.service';
-import { PrismaService } from './app/database/prisma.service';
+import { AppConfigService } from './app/config';
+import { PrismaService } from './app/database';
+import { WebSocketEventService } from './app/common/websocket';
+import { TransformInterceptor } from './app/common/interceptors';
 
 async function bootstrap() {
   // Create NestJS application with custom logger
@@ -120,6 +121,10 @@ async function bootstrap() {
   // Prisma shutdown hooks
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
+
+  // Initialize WebSocket event service
+  const webSocketEventService = app.get(WebSocketEventService);
+  await webSocketEventService.startPeriodicUpdates();
 
   // Start the application
   await app.listen(configService.port);

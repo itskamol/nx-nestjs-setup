@@ -22,15 +22,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FindUsersOptions, UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserResponseDto } from './dto/user-response.dto';
-import { JwtAuthGuard } from '../common/guards/auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/user.decorator';
+import { CreateUserDto, UpdateUserDto, UserResponseDto } from './dto';
 import { PaginatedResponse } from '@shared/types';
 import { Role, User } from '@prisma/client';
+import { JwtAuthGuard, RolesGuard } from '../common';
+import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentUser } from '../common/decorators/user.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT-auth')

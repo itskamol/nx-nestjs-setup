@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { PasswordService } from '../common/services/password.service';
-import { JwtService } from './jwt.service';
-import { CacheService } from '../common/cache/cache.service';
+import { UsersService } from '../../users/users.service';
+import { PasswordService } from '../../common/services/password.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { Role, User } from '@prisma/client';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { JwtService } from './jwt.service';
 
 describe('AuthService', () => {
   let service: AuthService;

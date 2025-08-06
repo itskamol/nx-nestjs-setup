@@ -35,7 +35,7 @@ export class TestDatabaseManager {
       // Connect to the database
       await this.prisma.$connect();
 
-      console.log(`✅ Test database connected: ${this.testDatabaseUrl}`);
+      console.log(` Test database connected: ${this.testDatabaseUrl}`);
     } catch (error) {
       console.error('❌ Failed to connect to test database:', error);
       throw error;

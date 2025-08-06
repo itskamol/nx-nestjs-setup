@@ -1,21 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config/config.service';
-import { createHmac } from 'crypto';
+import { createHash, createHmac } from 'crypto';
 
 @Injectable()
 export class HikvisionService {
   private readonly logger = new Logger(HikvisionService.name);
   private readonly baseUrl: string;
   private readonly authHeader: string;
+  private readonly username: string;
+  private readonly password: string;
 
   constructor(private readonly configService: AppConfigService) {
     const config = this.configService.faceRecognition.hikvision;
     this.baseUrl = `http://${config.host}:${config.port}`;
+    this.username = config.username;
+    this.password = config.password;
     this.authHeader = `Basic ${Buffer.from(`${config.username}:${config.password}`).toString('base64')}`;
   }
 
   async testConnection(): Promise<boolean> {
     try {
+      // Try Digest authentication first
+      const digestResult = await this.testDigestAuth();
+      if (digestResult.success) {
+        this.logger.log(' Connection successful using Digest Authentication');
+        return true;
+      }
+
+      // Fallback to Basic auth
       const response = await fetch(`${this.baseUrl}/ISAPI/Security/userCheck`, {
         method: 'GET',
         headers: {
@@ -24,7 +36,12 @@ export class HikvisionService {
         },
       });
 
-      return response.ok;
+      if (response.ok) {
+        this.logger.log(' Connection successful using Basic Authentication');
+        return true;
+      }
+
+      return false;
     } catch (error) {
       this.logger.error('Failed to connect to Hikvision device', error);
       return false;
@@ -293,6 +310,102 @@ export class HikvisionService {
     } catch (error) {
       this.logger.error('Snapshot capture error', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  // Digest Authentication methods
+  private generateDigestAuth(method: string, uri: string, wwwAuth: string): string {
+    const realm = this.extractFromAuth(wwwAuth, 'realm');
+    const nonce = this.extractFromAuth(wwwAuth, 'nonce');
+    const qop = this.extractFromAuth(wwwAuth, 'qop');
+    const opaque = this.extractFromAuth(wwwAuth, 'opaque');
+
+    const nc = '00000001';
+    const cnonce = Math.random().toString(36).substring(2, 15);
+
+    const ha1 = createHash('md5')
+      .update(`${this.username}:${realm}:${this.password}`)
+      .digest('hex');
+    const ha2 = createHash('md5').update(`${method}:${uri}`).digest('hex');
+
+    let response: string;
+    if (qop) {
+      response = createHash('md5')
+        .update(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
+        .digest('hex');
+    } else {
+      response = createHash('md5').update(`${ha1}:${nonce}:${ha2}`).digest('hex');
+    }
+
+    let digestHeader = `Digest username="${this.username}", realm="${realm}", nonce="${nonce}", uri="${uri}", response="${response}"`;
+
+    if (qop) {
+      digestHeader += `, qop=${qop}, nc=${nc}, cnonce="${cnonce}"`;
+    }
+
+    if (opaque) {
+      digestHeader += `, opaque="${opaque}"`;
+    }
+
+    return digestHeader;
+  }
+
+  private extractFromAuth(authHeader: string, key: string): string {
+    const regex = new RegExp(`${key}="([^"]*)"`, 'i');
+    const match = authHeader.match(regex);
+    return match ? match[1] : '';
+  }
+
+  async testDigestAuth(): Promise<{ success: boolean; details: string }> {
+    try {
+      this.logger.debug('Testing Digest Authentication...');
+
+      const firstResponse = await fetch(`${this.baseUrl}/ISAPI/System/deviceInfo`, {
+        method: 'GET',
+        headers: { Accept: 'application/xml' },
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (firstResponse.status === 401) {
+        const authHeader = firstResponse.headers.get('WWW-Authenticate');
+        if (authHeader && authHeader.includes('Digest')) {
+          const digestAuth = this.generateDigestAuth('GET', '/ISAPI/System/deviceInfo', authHeader);
+
+          const authResponse = await fetch(`${this.baseUrl}/ISAPI/System/deviceInfo`, {
+            method: 'GET',
+            headers: {
+              Authorization: digestAuth,
+              Accept: 'application/xml',
+            },
+            signal: AbortSignal.timeout(10000),
+          });
+
+          const responseText = await authResponse.text();
+
+          if (authResponse.ok) {
+            this.logger.log(' Digest Authentication successful!');
+            return {
+              success: true,
+              details: `Digest authentication successful! Response: ${responseText.substring(0, 200)}...`,
+            };
+          } else {
+            return {
+              success: false,
+              details: `Digest authentication failed with status ${authResponse.status}: ${responseText.substring(0, 200)}`,
+            };
+          }
+        }
+      }
+
+      return {
+        success: false,
+        details: 'Device does not support Digest authentication',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        details: `Digest auth error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
     }
   }
 }
