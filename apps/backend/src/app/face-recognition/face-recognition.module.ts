@@ -4,11 +4,14 @@ import { DatabaseModule } from '../database';
 import { CacheModule } from '../common';
 import { FaceRecognitionController } from './controllers';
 import { FaceRecognitionService, HikvisionService } from './services';
+import { HikvisionIsapiService } from './services/hiki.service';
+import { HikvisionController } from './controllers/hikvision.controller';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, CacheModule],
-  controllers: [FaceRecognitionController],
-  providers: [FaceRecognitionService, HikvisionService],
-  exports: [FaceRecognitionService, HikvisionService],
+  imports: [ConfigModule, DatabaseModule, CacheModule, HttpModule],
+  controllers: [FaceRecognitionController, HikvisionController],
+  providers: [FaceRecognitionService, HikvisionService, HikvisionIsapiService],
+  exports: [FaceRecognitionService, HikvisionService, HikvisionIsapiService],
 })
 export class FaceRecognitionModule {}

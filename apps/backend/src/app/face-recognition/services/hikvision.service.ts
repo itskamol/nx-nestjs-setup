@@ -54,35 +54,76 @@ export class HikvisionService {
     options?: {
       name?: string;
       gender?: string;
-      age?: number;
+      bornTime?: string;
       cardNo?: string;
+      faceLibType?: string;
+      FDID?: string;
     }
   ): Promise<{ success: boolean; faceId?: string; error?: string }> {
     try {
-      // Remove base64 prefix if present
+      // Base64 prefiksini olib tashlaymiz
       const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
+      const binaryData = Buffer.from(base64Data, 'base64'); // Rasmni binary ma'lumotga o'tkazish
 
-      const requestBody = {
-        FaceInfoList: [
-          {
-            faceID: faceId,
-            name: options?.name || faceId,
-            gender: options?.gender || 'unknown',
-            age: options?.age || 0,
-            cardNo: options?.cardNo || '',
-            facePic: base64Data,
-          },
+      // Metadata JSON ob'ektini yaratish
+      // const metadata = {
+      //   UserInfo: {
+      //     employeeNo: faceId,
+      //     name: options?.name || '',
+      //     userType: options?.faceLibType || 'normal', // Shaxs kutubxonasiga qarab userType ni o'rnatish
+      //     gender: options?.gender || 'unknown',
+      //     Valid: {
+      //       enable: true,
+      //     },
+      //   },
+      //   FaceInfo: {
+      //     faceLibType: options?.faceLibType || 'normalFD',
+      //     FDID: options?.FDID || '1',
+      //   },
+      // };
+
+      const metadataXML = `<UserInfo version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema">
+      <employeeNo>${faceId}</employeeNo>
+      <name>${options?.name || ''}</name>
+      <userType>${options?.faceLibType || 'normal'}</userType>
+      <gender>${options?.gender || 'unknown'}</gender>
+      <Valid>
+        <enable>true</enable>
+      </Valid>
+      <FaceInfo>
+          <faceLibType>${options?.faceLibType || 'normalFD'}</faceLibType>
+          <FDID>${options?.FDID || '1'}</FDID>
+      </FaceInfo>
+    </UserInfo>`;
+
+      const boundary = `----WebKitFormBoundary${Math.random().toString(16).slice(2)}`;
+
+      const body = new Blob(
+        [
+          `--${boundary}\r\n`,
+          `Content-Disposition: form-data; name="UserInfo"\r\n`,
+          `Content-Type: application/xml\r\n\r\n`,
+          metadataXML,
+          `\r\n--${boundary}\r\n`,
+          `Content-Disposition: form-data; name="FaceData"; filename="face.jpg"\r\n`,
+          `Content-Type: image/jpeg\r\n\r\n`,
+          binaryData, // Bu yerda to'g'ridan-to'g'ri binary ma'lumot yuboriladi
+          `\r\n--${boundary}--`,
         ],
-      };
+        { type: `multipart/form-data; boundary=${boundary}` }
+      );
 
-      const response = await fetch(`${this.baseUrl}/ISAPI/Intelligent/FaceLib/FaceDataRecord`, {
-        method: 'POST',
-        headers: {
-          Authorization: this.authHeader,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `${this.baseUrl}/ISAPI/AccessControl/UserInfo/FaceDataRecord?format=json`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: this.authHeader,
+            'Content-Type': `multipart/form-data; boundary=${boundary}`,
+          },
+          body,
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -90,8 +131,10 @@ export class HikvisionService {
         return { success: false, error: errorText };
       }
 
-      await response.json();
-      this.logger.log(`Face enrolled successfully: ${faceId}`);
+      const responseJson = await response.json();
+      this.logger.log(
+        `Face enrolled successfully: ${faceId}, Response: ${JSON.stringify(responseJson)}`
+      );
       return { success: true, faceId };
     } catch (error) {
       this.logger.error('Face enrollment error', error);
@@ -121,7 +164,7 @@ export class HikvisionService {
         FaceImageData: base64Data,
       };
 
-      const response = await fetch(`${this.baseUrl}/ISAPI/Intelligent/FaceLib/FaceDataSearch`, {
+      const response = await fetch(`${this.baseUrl}/ISAPI/Intelligent/FDLib/FDSearch?format=json`, {
         method: 'POST',
         headers: {
           Authorization: this.authHeader,

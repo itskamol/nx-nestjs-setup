@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../../../backend/src/app/app.module';
-import { TransformInterceptor } from '../../../backend/src/app/common/interceptors/transform.interceptor';
-import { GlobalExceptionFilter } from '../../../backend/src/app/common/filters/global-exception.filter';
+import { AppModule } from '../../../apps/backend/src/app/app.module';
+import { TransformInterceptor } from '../../../apps/backend/src/app/common/interceptors/transform.interceptor';
+import { GlobalExceptionFilter } from '../../../apps/backend/src/app/common/filters/global-exception.filter';
 
 describe('Backend E2E Tests - API Health and Basic Functionality', () => {
   let app: INestApplication;

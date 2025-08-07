@@ -1,0 +1,124 @@
+{
+  "UserInfo": {
+    // req, object, person information
+    "employeeNo": "test",
+    // req, string, employee No. (person ID)
+    "name": "test",
+    // opt, string, person name
+    "userType": "normal",
+    // req, enum, person type, subType:string, desc:"normal" (normal person (household)), "visitor", "blackList" (person in blocklist), "maintenance" (maintenance persons including cleaners, repairmen, etc. )
+    "closeDelayEnabled": true,
+    // opt, bool, whether to enable door close delay
+    "Valid": {
+      // req, object, parameters of the effective period,the effective period can be a period of time between 1970-01-01 00:00:00 and 2037-12-31 23:59:59
+      "enable": true,
+      // req, bool, whether to enable validity period
+      "beginTime": "2017-08-01T17:30:08+08:00",
+      // req, datetime, start time of the effective period, desc:if timeType does not exist or is "local", the beginTime is the device local time, g., 2017-08-01T17:30:08; if timeType is "UTC", the beginTime is UTC time, e.g., 2017-08-01T17:30:08+08:00
+      "endTime": "2017-08-01T17:30:08+08:00",
+      // req, datetime, end time of the effective period, desc:if timeType does not exist or is "local", the endTime is the device local time, e.g., 2017-08-01T17:30:08; if timeType is "UTC", the endTime is UTC time, e.g., 2017-08-01T17:30:08+08:00
+      "timeType": "local"
+      // opt, enum, time type, subType:string, desc:"local" (device local time), "UTC" (UTC time)
+    },
+    "belongGroup": "1,3,5",
+    // opt, string, group
+    "password": "123456",
+    // opt, string, password
+    "doorRight": "1,3",
+    // opt, string, door permission
+    "RightPlan": [
+      // opt, array, door permission schedule (lock permission schedule), subType:object
+      {
+        "doorNo": 1,
+        // opt, int, door No. (lock ID)
+        "planTemplateNo": "1,3,5"
+        // opt, string, schedule template No., desc:schedule template No.
+      }
+    ],
+    "maxOpenDoorTime": 0,
+    // opt, int, maximum authentication attempts, desc:0-unlimited
+    "roomNumber": 123,
+    // opt, int, room No.
+    "floorNumber": 1,
+    // opt, int, floor No.
+    "doubleLockRight": true,
+    // opt, bool, whether to have the permission to open the double-locked door
+    "localUIRight": true,
+    // opt, bool, whether to have the permission to access the device local UI
+    "userVerifyMode": "card",
+    // opt, enum, person authentication mode, subType:string, desc:"cardAndPw" (card+password), "card" (card), "cardOrPw" (card or password), "fp"
+    //  (fingerprint), "fpAndPw" (fingerprint+password), "fpOrCard" (fingerprint or card), "fpAndCard" (fingerprint+card), "fpAndCardAndPw"
+    // (fingerprint+card+password), "faceOrFpOrCardOrPw" (face or fingerprint or card or password), "faceAndFp" (face+fingerprint), "faceAndPw" (face+password),
+    // "faceAndCard" (face+card), "face" (face), "employeeNoAndPw" (employee No.+password), "fpOrPw" (fingerprint or password), "employeeNoAndFp" (employee
+    // No.+fingerprint), "employeeNoAndFpAndPw" (employee No.+fingerprint+password), "faceAndFpAndCard" (face+fingerprint+card), "faceAndPwAndFp"
+    // 21.22.14 Add a person
+    // No.+fingerprint), "employeeNoAndFpAndPw" (employee No.+fingerprint+password), "faceAndFpAndCard" (face+fingerprint+card), "faceAndPwAndFp"
+    // (face+password+fingerprint), "employeeNoAndFace" (employee No.+face), "faceOrfaceAndCard" (face or face+card), "fpOrface" (fingerprint or face),
+    // "cardOrfaceOrPw" (card or face or password), "iris" (iris), "faceOrFpOrCardOrPwOrIris" (face, fingerprint, card, password, or iris), "faceOrCardOrPwOrIris"
+    // (face, card, password, or iris). The person authentication mode is prior to the card reader authentication mode
+    "checkUser": true,
+    // opt, bool, whether to verify the duplicated person information, desc:"false"-no, "true"-yes. If checkUser is not configured, the device will
+    // verify the duplicated person information by default. When there is no person information, you can set checkUser to "false" to speed up data applying;
+    // otherwise, it is not recommended to configure this node
+    "gender": "male",
+    // opt, enum, gender of the person in the face picture, subType:string, desc:"male", "female", "unknown"
+    "PersonInfoExtends": [
+      // opt, array, extended fields for the additional person information, subType:object, desc:This node is used to configure the extended person
+      // information displayed on the device's UI. For MinMoe series facial recognition terminals, currently only one value node can be supported for displaying the
+      // employee No. and the node id is not supported
+      {
+        "id": 1,
+        // opt, int, extended ID of the additional person information, range:[1,32], desc:it corresponds to the id in the message of the request URI
+        // /ISAPI/AccessControl/personInfoExtendName?format=json and is used to link the value of the node value and its name (the node name in the message of the
+        // request URI /ISAPI/AccessControl/personInfoExtendName?format=json). If the node id does not exist, the ID will start from 1 by default according to the
+        // array order
+        "value": "test"
+        // opt, string, extended content of the additional person information
+      }
+    ],
+    "operateType": "byTerminal",
+    // opt, string, operation type, desc:"byTerminal"-by terminal
+    "terminalNoList": [1],
+    // opt, array, terminal ID list, subType:int, desc:this node is required when operation type is "byTerminal"; currently, only one terminal is
+    // supported
+    "dynamicCode": "123456",
+    // opt, string, dynamic permission code
+    "callNumbers": ["1-1-1-401"],
+    // opt, array, room No. list to be called, subType:string, desc:it is extended from roomNumber; for standard SIP, it can be the SIP number
+    "floorNumbers": [1, 2],
+    // opt, array, floor No. list, subType:int, desc:it is extended from floorNumber
+    "groupId": 1,
+    // opt, int
+    "localAtndPlanTemplateId": 1,
+    // opt, int
+    "groupName": "test",
+    // opt, string, range:[1,64]
+    "age": 0,
+    // opt, int, age, range:[0,120]
+    "PatientInfos": {
+      // opt, object
+      "deviceID": "test",
+      // opt, string
+      "admissionTime": "1970-01-01T00:00:00+08:00",
+      // opt, datetime
+      "chargeNurse": "test",
+      // opt, string, range:[0,32]
+      "chargeDoctor": "test",
+      // opt, string, range:[0,32]
+      "nursingLevel": "tertiary",
+      // opt, enum, subType:string
+      "doctorsAdvice": "test",
+      // opt, string, range:[0,128]
+      "allergicHistory": "test"
+      // opt, string, range:[0,128]
+    },
+    "ESDType": "handAndFoot",
+    // opt, enum, subType:string
+    "userLevel": "Employee",
+    // opt, enum, subType:string
+    "userName": "test",
+    // opt, string, range:[1,32]
+    "loginPassword": "test"
+    // opt, string, range:[8,16]
+  }
+}
