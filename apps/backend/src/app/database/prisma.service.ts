@@ -1,4 +1,10 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  INestApplication,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { AppConfigService } from '../config/config.service';
 
@@ -39,7 +45,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
-  async enableShutdownHooks(app: any) {
+  async enableShutdownHooks(app: INestApplication) {
     // Note: Prisma v5 doesn't support beforeExit event
     // This is a placeholder for shutdown hooks
     process.on('beforeExit', async () => {
