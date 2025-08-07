@@ -52,6 +52,7 @@ describe('AuthService', () => {
       create: jest.fn(),
       findOne: jest.fn(),
       updatePassword: jest.fn(),
+      findOneWithPassword: jest.fn(),
     };
 
     const mockPasswordService = {
@@ -309,7 +310,7 @@ describe('AuthService', () => {
     const newPassword = 'NewPassword123!';
 
     it('should change password successfully', async () => {
-      usersService.findOne.mockResolvedValue(mockUser as any);
+      usersService.findOneWithPassword.mockResolvedValue(mockUser as any);
       passwordService.comparePassword.mockResolvedValue(true);
       passwordService.validatePasswordStrength.mockReturnValue({
         isValid: true,
@@ -322,7 +323,7 @@ describe('AuthService', () => {
         service.changePassword(userId, currentPassword, newPassword)
       ).resolves.not.toThrow();
 
-      expect(usersService.findOne).toHaveBeenCalledWith(userId);
+      expect(usersService.findOneWithPassword).toHaveBeenCalledWith(userId);
       expect(passwordService.comparePassword).toHaveBeenCalledWith(
         currentPassword,
         mockUser.password
@@ -332,7 +333,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for non-existent user', async () => {
-      usersService.findOne.mockResolvedValue(null);
+      usersService.findOneWithPassword.mockResolvedValue(null);
 
       await expect(service.changePassword(userId, currentPassword, newPassword)).rejects.toThrow(
         UnauthorizedException
@@ -340,7 +341,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for incorrect current password', async () => {
-      usersService.findOne.mockResolvedValue(mockUser as any);
+      usersService.findOneWithPassword.mockResolvedValue(mockUser as any);
       passwordService.comparePassword.mockResolvedValue(false);
 
       await expect(service.changePassword(userId, currentPassword, newPassword)).rejects.toThrow(
@@ -349,7 +350,7 @@ describe('AuthService', () => {
     });
 
     it('should throw BadRequestException for weak new password', async () => {
-      usersService.findOne.mockResolvedValue(mockUser as any);
+      usersService.findOneWithPassword.mockResolvedValue(mockUser as any);
       passwordService.comparePassword.mockResolvedValue(true);
       passwordService.validatePasswordStrength.mockReturnValue({
         isValid: false,

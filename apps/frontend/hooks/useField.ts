@@ -75,7 +75,7 @@ export function useField<T>({
         return true;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const fieldError = error.errors[0]?.message;
+          const fieldError = error.issues[0]?.message;
           setErrorState(fieldError);
           setIsValidState(false);
         } else {
@@ -200,10 +200,14 @@ export function usePasswordField(
 }
 
 export function useNumberField(
-  options: Omit<UseFieldOptions<number>, 'initialValue'> & { initialValue?: number }
+  options: Omit<UseFieldOptions<number>, 'initialValue' | 'validationSchema'> & {
+    initialValue?: number;
+  }
 ) {
+  const numberSchema = z.number();
   return useField({
     initialValue: options.initialValue || 0,
+    validationSchema: numberSchema,
     ...options,
   });
 }

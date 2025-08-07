@@ -26,37 +26,37 @@ jest.mock('next/link', () => ({
 }))
 
 jest.mock('@/components/ui/alert', () => ({
-  Alert: ({ children }: { children: React.ReactNode }) => <div data-testid="alert">{children}</div>,
-  AlertDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
-}))
+  Alert: ({ children }) => children,
+  AlertDescription: ({ children }) => children,
+}));
 
 jest.mock('@/components/ui/checkbox', () => ({
-  Checkbox: (props: any) => <input type="checkbox" {...props} />
-}))
+  Checkbox: (props) => <input type="checkbox" {...props} />,
+}));
 
 jest.mock('@/components/ui/atoms/Button/Button', () => ({
-  default: (props: any) => <button {...props}>{props.children}</button>
-}))
+  default: (props) => <button {...props}>{props.children}</button>,
+}));
 
 jest.mock('@/components/ui/atoms/Input/Input', () => ({
-  default: (props: any) => <input {...props} />
-}))
+  default: (props) => <input {...props} />,
+}));
 
 jest.mock('@/components/ui/molecules/FormField/FormField', () => ({
-  default: ({ children, error, label }: { children: React.ReactNode; error?: string; label?: string }) => (
+  default: ({ children, error, label }) => (
     <div>
       {label && <label>{label}</label>}
       {children}
       {error && <span className="error">{error}</span>}
     </div>
-  )
-}))
+  ),
+}));
 
 jest.mock('@/components/ui/atoms/Typography/Typography', () => ({
-  default: ({ children, variant, weight }: { children: React.ReactNode; variant?: string; weight?: string }) => (
+  default: ({ children, variant, weight }) => (
     <div className={`typography ${variant} ${weight}`}>{children}</div>
-  )
-}))
+  ),
+}));
 
 describe('AuthForm', () => {
   const mockOnSubmit = jest.fn()

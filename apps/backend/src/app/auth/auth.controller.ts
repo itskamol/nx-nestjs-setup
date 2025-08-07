@@ -1,13 +1,15 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './services/auth.service';
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
 import { CurrentUser, JwtAuthGuard, Public } from '../common';
 import { AuthResponse } from '@shared/types';
 import { User } from '@prisma/client';
+import { AuthExceptionFilter } from '../common/filters/auth-exception.filter';
 
 @ApiTags('Authentication')
 @Controller('auth')
+@UseFilters(new AuthExceptionFilter())
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

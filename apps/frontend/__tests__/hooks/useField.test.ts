@@ -2,281 +2,75 @@ import { act, renderHook } from '@testing-library/react';
 import { useField } from '@/hooks/useField';
 import { z } from 'zod';
 
-// Mock react-hook-form
-const mockFormState = {
-  errors: {},
-  isValid: true,
-  isDirty: false,
-  isSubmitting: false,
-};
-
-const mockControl = {
-  register: jest.fn(),
-  unregister: jest.fn(),
-  setValue: jest.fn(),
-  getValues: jest.fn(),
-  watch: jest.fn(),
-  trigger: jest.fn(),
-  clearErrors: jest.fn(),
-  setError: jest.fn(),
-};
-
-jest.mock('react-hook-form', () => ({
-  useFormContext: () => ({
-    control: mockControl,
-    formState: mockFormState,
-    register: jest.fn(),
-    setValue: jest.fn(),
-    trigger: jest.fn(),
-    clearErrors: jest.fn(),
-    setError: jest.fn(),
-  }),
-  useForm: () => ({
-    control: mockControl,
-    formState: mockFormState,
-    register: jest.fn(),
-    setValue: jest.fn(),
-    trigger: jest.fn(),
-    clearErrors: jest.fn(),
-    setError: jest.fn(),
-  }),
-}));
-
-jest.mock('@hookform/resolvers', () => ({
-  zodResolver: jest.fn(() => jest.fn()),
-}));
-
 describe('useField hook', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockFormState.errors = {};
-  });
+  it('initializes with default values', () => {
+    const { result } = renderHook(() => useField({ initialValue: '' }));
 
-  it('provides field registration', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    expect(result.current.register).toBeDefined();
-    expect(result.current.error).toBeDefined();
-    expect(result.current.isValid).toBeDefined();
-  });
-
-  it('returns field error when present', () => {
-    mockFormState.errors = {
-      email: { message: 'Invalid email address' },
-    };
-
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    expect(result.current.error).toBe('Invalid email address');
-    expect(result.current.isValid).toBe(false);
-  });
-
-  it('returns no error when field is valid', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
+    expect(result.current.value).toBe('');
     expect(result.current.error).toBeUndefined();
+    expect(result.current.touched).toBe(false);
     expect(result.current.isValid).toBe(true);
+    expect(result.current.isDirty).toBe(false);
+    expect(result.current.isValidating).toBe(false);
   });
 
-  it('allows setting field value', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
+  it('sets value and marks field as dirty', () => {
+    const { result } = renderHook(() => useField({ initialValue: '' }));
 
     act(() => {
-      result.current.setValue('john@example.com');
+      result.current.setValue('test');
     });
 
-    expect(mockControl.setValue).toHaveBeenCalledWith('email', 'john@example.com');
-  });
-
-  it('allows triggering field validation', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    act(() => {
-      result.current.validate();
-    });
-
-    expect(mockControl.trigger).toHaveBeenCalledWith('email');
-  });
-
-  it('allows clearing field error', () => {
-    mockFormState.errors = {
-      email: { message: 'Invalid email address' },
-    };
-
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    act(() => {
-      result.current.clearError();
-    });
-
-    expect(mockControl.clearErrors).toHaveBeenCalledWith('email');
-  });
-
-  it('allows setting custom field error', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    act(() => {
-      result.current.setError('Custom error message');
-    });
-
-    expect(mockControl.setError).toHaveBeenCalledWith('email', {
-      message: 'Custom error message',
-    });
-  });
-
-  it('works with nested field names', () => {
-    mockFormState.errors = {
-      'user.profile.email': { message: 'Invalid email address' },
-    };
-
-    const { result } = renderHook(() =>
-      useField('user.profile.email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    expect(result.current.error).toBe('Invalid email address');
-    expect(result.current.isValid).toBe(false);
-  });
-
-  it('handles array field names', () => {
-    mockFormState.errors = {
-      'items.0.name': { message: 'Name is required' },
-    };
-
-    const { result } = renderHook(() =>
-      useField('items.0.name', {
-        schema: z.string().min(1, 'Name is required'),
-      })
-    );
-
-    expect(result.current.error).toBe('Name is required');
-    expect(result.current.isValid).toBe(false);
-  });
-
-  it('provides field value watching', () => {
-    mockControl.watch.mockReturnValue('john@example.com');
-
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    expect(result.current.value).toBe('john@example.com');
-  });
-
-  it('handles undefined field values', () => {
-    mockControl.watch.mockReturnValue(undefined);
-
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
-    expect(result.current.value).toBeUndefined();
-  });
-
-  it('works with different validation schemas', () => {
-    const { result } = renderHook(() =>
-      useField('age', {
-        schema: z.number().min(18, 'Must be at least 18'),
-      })
-    );
-
-    expect(result.current.register).toBeDefined();
-    expect(result.current.error).toBeDefined();
-    expect(result.current.isValid).toBeDefined();
-  });
-
-  it('works with boolean fields', () => {
-    const { result } = renderHook(() =>
-      useField('isActive', {
-        schema: z.boolean(),
-      })
-    );
-
-    expect(result.current.register).toBeDefined();
-    expect(result.current.error).toBeDefined();
-    expect(result.current.isValid).toBeDefined();
-  });
-
-  it('works with date fields', () => {
-    const { result } = renderHook(() =>
-      useField('birthDate', {
-        schema: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-      })
-    );
-
-    expect(result.current.register).toBeDefined();
-    expect(result.current.error).toBeDefined();
-    expect(result.current.isValid).toBeDefined();
-  });
-
-  it('handles custom validation options', () => {
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-        validateOnBlur: true,
-        validateOnChange: true,
-      })
-    );
-
-    expect(result.current.register).toBeDefined();
-    expect(result.current.error).toBeDefined();
-    expect(result.current.isValid).toBeDefined();
-  });
-
-  it('provides dirty state information', () => {
-    mockFormState.isDirty = true;
-
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
-
+    expect(result.current.value).toBe('test');
     expect(result.current.isDirty).toBe(true);
   });
 
-  it('provides submitting state information', () => {
-    mockFormState.isSubmitting = true;
+  it('validates with a Zod schema', async () => {
+    const schema = z.string().min(3, 'Too short');
+    const { result } = renderHook(() => useField({ initialValue: '', validationSchema: schema }));
 
-    const { result } = renderHook(() =>
-      useField('email', {
-        schema: z.string().email('Invalid email address'),
-      })
-    );
+    await act(async () => {
+      await result.current.validate('t');
+    });
 
-    expect(result.current.isSubmitting).toBe(true);
+    expect(result.current.isValid).toBe(false);
+    expect(result.current.error).toBe('Too short');
+
+    await act(async () => {
+      await result.current.validate('test');
+    });
+
+    expect(result.current.isValid).toBe(true);
+    expect(result.current.error).toBeUndefined();
+  });
+
+  it('handles async validation', async () => {
+    const asyncValidation = async (value: string) => {
+      return value === 'test' ? 'Invalid' : undefined;
+    };
+    const { result } = renderHook(() => useField({ initialValue: '', asyncValidation }));
+
+    await act(async () => {
+      await result.current.validate('test');
+    });
+
+    expect(result.current.isValid).toBe(false);
+    expect(result.current.error).toBe('Invalid');
+  });
+
+  it('resets to initial state', () => {
+    const { result } = renderHook(() => useField({ initialValue: '' }));
+
+    act(() => {
+      result.current.setValue('test');
+      result.current.setTouched(true);
+    });
+
+    act(() => {
+      result.current.reset();
+    });
+
+    expect(result.current.value).toBe('');
+    expect(result.current.touched).toBe(false);
   });
 });

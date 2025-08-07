@@ -56,6 +56,7 @@ describe('Zod Schemas', () => {
         email: 'john@example.com',
         password: 'StrongPass123!',
         confirmPassword: 'StrongPass123!',
+        role: 'USER',
       };
 
       const result = registerSchema.safeParse(validData);
@@ -106,7 +107,13 @@ describe('Zod Schemas', () => {
       const validData = {
         userId: 'user123',
         imageData: 'base64-image-data',
+        faceData: 'face-data',
         confidence: 0.85,
+        metadata: {
+            quality: 0.9,
+            brightness: 0.8,
+            blur: 0.1,
+        }
       };
 
       const result = faceEnrollmentSchema.safeParse(validData);

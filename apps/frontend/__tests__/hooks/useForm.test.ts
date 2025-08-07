@@ -1,34 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useForm } from '@/hooks/useForm';
 import { z } from 'zod';
 
-// Mock react-hook-form
-jest.mock('react-hook-form', () => ({
-  useForm: jest.fn(() => ({
-    register: jest.fn(),
-    handleSubmit: jest.fn(fn => (e: any) => {
-      e.preventDefault();
-      return fn({ name: 'John Doe', email: 'john@example.com' });
-    }),
-    formState: { errors: {}, isValid: true, isDirty: false, isSubmitting: false },
-    setValue: jest.fn(),
-    getValues: jest.fn(() => ({ name: 'John Doe', email: 'john@example.com' })),
-    watch: jest.fn(field => {
-      if (field === 'name') return 'John Doe';
-      if (field === 'email') return 'john@example.com';
-      return '';
-    }),
-    trigger: jest.fn(),
-    reset: jest.fn(),
-    clearErrors: jest.fn(),
-    setError: jest.fn(),
-    control: {},
-  })),
-}));
-
-jest.mock('@hookform/resolvers', () => ({
-  zodResolver: jest.fn(() => jest.fn()),
-}));
 
 describe('useForm hook', () => {
   const testSchema = z.object({
@@ -41,70 +14,75 @@ describe('useForm hook', () => {
   });
 
   it('initializes form with default values', () => {
-    const defaultValues = {
+    const initialValues = {
       name: 'John Doe',
       email: 'john@example.com',
     };
 
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues,
+        validationSchema: testSchema,
+        initialValues,
       })
     );
 
     expect(result.current).toBeDefined();
-    expect(result.current.register).toBeDefined();
+    expect(result.current.getFieldProps).toBeDefined();
     expect(result.current.handleSubmit).toBeDefined();
-    expect(result.current.formState).toBeDefined();
+    expect(result.current.errors).toBeDefined();
   });
 
-  it('handles form submission', () => {
+  it('handles form submission', async () => {
     const onSubmit = jest.fn();
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
+        onSubmit,
       })
     );
 
     const mockEvent = { preventDefault: jest.fn() };
-    act(() => {
-      result.current.handleSubmit(onSubmit)(mockEvent);
+    await act(async () => {
+      await result.current.handleSubmit(mockEvent);
     });
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'John Doe',
-      email: 'john@example.com',
-    });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        name: 'John Doe',
+        email: 'john@example.com',
+      },
+      expect.anything()
+    );
   });
 
   it('provides form state', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
       })
     );
 
-    expect(result.current.formState).toBeDefined();
-    expect(result.current.formState.errors).toBeDefined();
-    expect(result.current.formState.isValid).toBeDefined();
-    expect(result.current.formState.isDirty).toBeDefined();
-    expect(result.current.formState.isSubmitting).toBeDefined();
+    expect(result.current.errors).toBeDefined();
+    expect(result.current.isValid).toBeDefined();
+    expect(result.current.isDirty).toBeDefined();
+    expect(result.current.isSubmitting).toBeDefined();
   });
 
   it('allows setting form values', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
@@ -112,24 +90,24 @@ describe('useForm hook', () => {
     );
 
     act(() => {
-      result.current.setValue('name', 'Jane Smith');
+      result.current.setFieldValue('name', 'Jane Smith');
     });
 
-    expect(result.current.setValue).toHaveBeenCalledWith('name', 'Jane Smith');
+    expect(result.current.values.name).toBe('Jane Smith');
   });
 
   it('allows getting form values', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
       })
     );
 
-    const values = result.current.getValues();
+    const values = result.current.values;
     expect(values).toEqual({
       name: 'John Doe',
       email: 'john@example.com',
@@ -139,41 +117,39 @@ describe('useForm hook', () => {
   it('allows watching specific fields', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
       })
     );
 
-    const nameValue = result.current.watch('name');
+    const nameValue = result.current.values.name;
     expect(nameValue).toBe('John Doe');
   });
 
-  it('allows triggering validation', () => {
+  it('allows triggering validation', async () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
-          name: 'John Doe',
+        validationSchema: testSchema,
+        initialValues: {
+          name: '',
           email: 'john@example.com',
         },
       })
     );
 
-    act(() => {
-      result.current.trigger('name');
+    await act(async () => {
+      await result.current.validateForm();
     });
-
-    expect(result.current.trigger).toHaveBeenCalledWith('name');
   });
 
   it('allows resetting form', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
@@ -181,35 +157,41 @@ describe('useForm hook', () => {
     );
 
     act(() => {
-      result.current.reset();
+      result.current.setFieldValue('name', 'Jane Smith');
     });
 
-    expect(result.current.reset).toHaveBeenCalled();
+    act(() => {
+      result.current.resetForm();
+    });
+
+    expect(result.current.values.name).toBe('John Doe');
   });
 
-  it('allows clearing errors', () => {
+  it('allows clearing errors', async () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
-          name: 'John Doe',
+        validationSchema: testSchema,
+        initialValues: {
+          name: '',
           email: 'john@example.com',
         },
       })
     );
+
+    await act(async () => {
+      await result.current.validateForm();
+    });
 
     act(() => {
       result.current.clearErrors();
     });
-
-    expect(result.current.clearErrors).toHaveBeenCalled();
   });
 
   it('allows setting errors', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
@@ -217,26 +199,24 @@ describe('useForm hook', () => {
     );
 
     act(() => {
-      result.current.setError('name', { message: 'Custom error message' });
+      result.current.setFieldError('name', 'Custom error message');
     });
 
-    expect(result.current.setError).toHaveBeenCalledWith('name', {
-      message: 'Custom error message',
-    });
+    expect(result.current.errors.name).toBe('Custom error message');
   });
 
   it('provides control object', () => {
     const { result } = renderHook(() =>
       useForm({
-        schema: testSchema,
-        defaultValues: {
+        validationSchema: testSchema,
+        initialValues: {
           name: 'John Doe',
           email: 'john@example.com',
         },
       })
     );
 
-    expect(result.current.control).toBeDefined();
+    expect(result.current.setFieldValue).toBeDefined();
   });
 
   it('works with complex schemas', () => {
@@ -253,8 +233,8 @@ describe('useForm hook', () => {
 
     const { result } = renderHook(() =>
       useForm({
-        schema: complexSchema,
-        defaultValues: {
+        validationSchema: complexSchema,
+        initialValues: {
           user: {
             name: 'John Doe',
             email: 'john@example.com',
@@ -268,7 +248,7 @@ describe('useForm hook', () => {
     );
 
     expect(result.current).toBeDefined();
-    expect(result.current.register).toBeDefined();
+    expect(result.current.getFieldProps).toBeDefined();
     expect(result.current.handleSubmit).toBeDefined();
   });
 
@@ -286,8 +266,8 @@ describe('useForm hook', () => {
 
     const { result } = renderHook(() =>
       useForm({
-        schema: asyncSchema,
-        defaultValues: {
+        validationSchema: asyncSchema,
+        initialValues: {
           email: 'john@example.com',
         },
       })

@@ -26,157 +26,92 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
-    try {
-      // Check if user already exists
-      const existingUser = await this.usersService.findByEmail(registerDto.email);
-      if (existingUser) {
-        throw new ConflictException('User with this email already exists');
-      }
-
-      // Validate password strength
-      const passwordValidation = this.passwordService.validatePasswordStrength(
-        registerDto.password
-      );
-
-      if (!passwordValidation.isValid) {
-        throw new BadRequestException({
-          message: 'Password does not meet security requirements',
-          errors: passwordValidation.errors,
-        });
-      }
-
-      // Create user with default role
-      const userDto = {
-        ...registerDto,
-        role: Role.USER,
-        isActive: true,
-      };
-
-      const user = await this.usersService.create(userDto);
-
-      // Generate tokens
-      const tokens = await this.jwtService.generateTokens(user as any);
-
-      this.logger.log(`User registered successfully: ${user.email}`);
-
-      return this.jwtService.createAuthResponse(user as User, tokens);
-    } catch (error) {
-      if (error instanceof ConflictException || error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error('Registration failed', error);
-      throw new Error('Registration failed');
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
     }
+
+    this.validatePassword(registerDto.password);
+
+    const userDto = {
+      ...registerDto,
+      role: Role.USER,
+      isActive: true,
+    };
+
+    const user = await this.usersService.create(userDto);
+    const tokens = await this.jwtService.generateTokens(user);
+
+    this.logger.log(`User registered successfully: ${user.email}`);
+
+    return this.jwtService.createAuthResponse(user, tokens);
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponse> {
-    try {
-      // Find user by email
-      const user = await this.usersService.findByEmail(loginDto.email);
-      if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-
-      // Check if user is active
-      if (!user.isActive) {
-        throw new UnauthorizedException('Account is deactivated');
-      }
-
-      // Verify password
-      const isPasswordValid = await this.passwordService.comparePassword(
-        loginDto.password,
-        user.password
-      );
-
-      if (!isPasswordValid) {
-        this.logger.warn(`Failed login attempt for email: ${loginDto.email}`);
-        throw new UnauthorizedException('Invalid credentials');
-      }
-
-      // Check if password needs rehashing
-      if (this.passwordService.needsRehash(user.password)) {
-        this.logger.log(`Rehashing password for user: ${user.email}`);
-        await this.usersService.updatePassword(user.id, loginDto.password);
-      }
-
-      // Generate tokens
-      const tokens = await this.jwtService.generateTokens(user);
-
-      this.logger.log(`User logged in successfully: ${user.email}`);
-
-      return this.jwtService.createAuthResponse(user, tokens);
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      this.logger.error('Login failed', error);
-      throw new UnauthorizedException('Authentication failed');
+    const user = await this.usersService.findByEmail(loginDto.email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    const isPasswordValid = await this.passwordService.comparePassword(
+      loginDto.password,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      this.logger.warn(`Failed login attempt for email: ${loginDto.email}`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (this.passwordService.needsRehash(user.password)) {
+      this.logger.log(`Rehashing password for user: ${user.email}`);
+      await this.usersService.updatePassword(user.id, loginDto.password);
+    }
+
+    const tokens = await this.jwtService.generateTokens(user);
+
+    this.logger.log(`User logged in successfully: ${user.email}`);
+
+    return this.jwtService.createAuthResponse(user, tokens);
   }
 
   async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<AuthResponse> {
-    try {
-      // Verify refresh token
-      const payload = await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
+    const payload = await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
 
-      // Check if token is blacklisted
-      const isBlacklisted = await this.isTokenBlacklisted(refreshTokenDto.refreshToken);
-      if (isBlacklisted) {
-        throw new UnauthorizedException('Refresh token has been revoked');
-      }
-
-      // Find user
-      const user = await this.usersService.findOne(payload.sub);
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-
-      // Check if user is active
-      if (!(user as any).isActive) {
-        throw new UnauthorizedException('Account is deactivated');
-      }
-
-      // Generate new tokens
-      const tokens = await this.jwtService.generateTokens(user as any);
-
-      // Blacklist the old refresh token
-      await this.blacklistToken(refreshTokenDto.refreshToken);
-
-      this.logger.log(`Token refreshed for user: ${(user as any).email}`);
-
-      return this.jwtService.createAuthResponse(user as any, tokens);
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      this.logger.error('Token refresh failed', error);
-      throw new UnauthorizedException('Token refresh failed');
+    const isBlacklisted = await this.isTokenBlacklisted(refreshTokenDto.refreshToken);
+    if (isBlacklisted) {
+      throw new UnauthorizedException('Refresh token has been revoked');
     }
+
+    const user = await this.usersService.findOne(payload.sub);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    const tokens = await this.jwtService.generateTokens(user);
+    await this.blacklistToken(refreshTokenDto.refreshToken);
+
+    this.logger.log(`Token refreshed for user: ${user.email}`);
+
+    return this.jwtService.createAuthResponse(user, tokens);
   }
 
   async logout(refreshToken: string): Promise<void> {
-    try {
-      // Verify the refresh token before blacklisting
-      await this.jwtService.verifyRefreshToken(refreshToken);
-
-      // Blacklist the refresh token
-      await this.blacklistToken(refreshToken);
-
-      this.logger.log('User logged out successfully');
-    } catch (error) {
-      this.logger.error('Logout failed', error);
-      // Don't throw error for logout - just log it
-    }
+    await this.jwtService.verifyRefreshToken(refreshToken);
+    await this.blacklistToken(refreshToken);
+    this.logger.log('User logged out successfully');
   }
 
   async validateUser(userId: string): Promise<User | null> {
-    try {
-      const user = await this.usersService.findOne(userId);
-      return user as any;
-    } catch (error) {
-      this.logger.error(`User validation failed for ID: ${userId}`, error);
-      return null;
-    }
+    return this.usersService.findOne(userId);
   }
 
   async changePassword(
@@ -184,43 +119,34 @@ export class AuthService {
     currentPassword: string,
     newPassword: string
   ): Promise<void> {
-    try {
-      // Get user with password
-      const user = await this.usersService.findOneWithPassword(userId);
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
+    const user = await this.usersService.findOneWithPassword(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
-      // Verify current password
-      const isCurrentPasswordValid = await this.passwordService.comparePassword(
-        currentPassword,
-        user.password
-      );
+    const isCurrentPasswordValid = await this.passwordService.comparePassword(
+      currentPassword,
+      user.password
+    );
 
-      if (!isCurrentPasswordValid) {
-        throw new UnauthorizedException('Current password is incorrect');
-      }
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
 
-      // Validate new password strength
-      const passwordValidation = this.passwordService.validatePasswordStrength(newPassword);
+    this.validatePassword(newPassword);
 
-      if (!passwordValidation.isValid) {
-        throw new BadRequestException({
-          message: 'New password does not meet security requirements',
-          errors: passwordValidation.errors,
-        });
-      }
+    await this.usersService.updatePassword(userId, newPassword);
 
-      // Update password
-      await this.usersService.updatePassword(userId, newPassword);
+    this.logger.log(`Password changed for user: ${userId}`);
+  }
 
-      this.logger.log(`Password changed for user: ${userId}`);
-    } catch (error) {
-      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error(`Password change failed for user: ${userId}`, error);
-      throw new Error('Password change failed');
+  private validatePassword(password: string): void {
+    const passwordValidation = this.passwordService.validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      throw new BadRequestException({
+        message: 'Password does not meet security requirements',
+        errors: passwordValidation.errors,
+      });
     }
   }
 
