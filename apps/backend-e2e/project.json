@@ -12,6 +12,13 @@
         "passWithNoTests": true
       },
       "dependsOn": ["backend:build", "backend:serve"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/backend-e2e/**/*.{ts,tsx,js,jsx}"]
+      }
     }
   }
 }

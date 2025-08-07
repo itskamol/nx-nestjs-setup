@@ -28,7 +28,8 @@
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
-        "targetName": "lint"
+        "targetName": "lint",
+        "extensions": ["ts", "tsx", "js", "jsx"]
       }
     },
     {
@@ -36,7 +37,8 @@
       "options": {
         "targetName": "test",
         "jestConfigPaths": [
-          "apps/*/jest.config.ts"
+          "apps/*/jest.config.{js,ts}",
+          "libs/*/jest.config.{js,ts}"
         ]
       },
       "exclude": ["apps/backend-e2e/**/*"]

@@ -60,7 +60,6 @@ class MockServer {
 
 describe.skip('WebSocket Gateway Integration', () => {
   let gateway: FaceRecognitionWebSocketGateway;
-  let eventService: WebSocketEventService;
   let jwtService: JwtService;
   let mockServer: MockServer;
   let mockSocket: MockSocket;
@@ -128,7 +127,6 @@ describe.skip('WebSocket Gateway Integration', () => {
     }).compile();
 
     gateway = module.get<FaceRecognitionWebSocketGateway>(FaceRecognitionWebSocketGateway);
-    eventService = module.get<WebSocketEventService>(WebSocketEventService);
     jwtService = module.get<JwtService>(JwtService);
 
     // Manually set the server property since it's normally set by NestJS

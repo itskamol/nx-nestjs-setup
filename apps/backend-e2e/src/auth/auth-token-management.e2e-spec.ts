@@ -6,7 +6,6 @@ import { TransformInterceptor } from '@backend/app/common/interceptors/transform
 import { GlobalExceptionFilter } from '@backend/app/common/filters/global-exception.filter';
 import { EnhancedTestDatabaseManager } from '../utils/enhanced-test-database.setup';
 import { AuthUtils } from '../utils/auth-utils';
-import { DataFactory } from '../utils/data-factory';
 import { TestHelpers } from '../utils/test-helpers';
 
 describe('Auth Token Management E2E Tests', () => {
@@ -407,7 +406,7 @@ describe('Auth Token Management E2E Tests', () => {
       const tokens = await authUtils.loginAs(testUser);
 
       // Tamper with the token by changing a character
-      const tamperedToken = tokens.accessToken.slice(0, -5) + 'XXXXX';
+      const tamperedToken = `${tokens.accessToken.slice(0, -5)}XXXXX`;
 
       const response = await request(app.getHttpServer())
         .post('/api/auth/logout')

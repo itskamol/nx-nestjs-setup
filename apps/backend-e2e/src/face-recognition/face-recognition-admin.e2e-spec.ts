@@ -64,8 +64,7 @@ describe('Face Recognition Admin and Integration E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  descri;
-  be('POST /api/face-recognition/test-connection - Test Hikvision Connection', () => {
+  describe('POST /api/face-recognition/test-connection - Test Hikvision Connection', () => {
     it('should test connection as admin', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
 
@@ -225,8 +224,7 @@ describe('Face Recognition Admin and Integration E2E Tests', () => {
       }
     });
   });
-  des;
-  cribe('POST /api/face-recognition/webhook - Handle Webhook Events', () => {
+  describe('POST /api/face-recognition/webhook - Handle Webhook Events', () => {
     it('should handle valid webhook event', async () => {
       const webhookData = DataFactory.createFaceWebhookData();
 

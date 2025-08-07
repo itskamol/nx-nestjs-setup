@@ -127,7 +127,9 @@ export class FormSchemaBuilder<T extends Record<string, any>> {
 
     if (options?.required) {
       if (fieldSchema instanceof z.ZodString) {
-        finalSchema = fieldSchema.nonempty({ message: options.message || `${String(key)} is required` });
+        finalSchema = fieldSchema.nonempty({
+          message: options.message || `${String(key)} is required`,
+        });
       } else {
         finalSchema = fieldSchema.refine(val => val !== undefined && val !== null, {
           message: options.message || `${String(key)} is required`,

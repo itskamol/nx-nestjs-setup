@@ -55,7 +55,7 @@ export class TestHelpers {
   /**
    * Expect a paginated response with proper structure
    */
-  static expectPaginatedResponse<T>(
+  static expectPaginatedResponse(
     response: Response,
     expectedLength?: number,
     statusCode = 200

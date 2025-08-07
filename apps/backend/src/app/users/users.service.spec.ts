@@ -109,7 +109,9 @@ describe('UsersService', () => {
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email: createUserDto.email },
       });
-      expect(mockPasswordService.validatePasswordStrength).toHaveBeenCalledWith(createUserDto.password);
+      expect(mockPasswordService.validatePasswordStrength).toHaveBeenCalledWith(
+        createUserDto.password
+      );
       expect(mockPasswordService.hashPassword).toHaveBeenCalledWith(createUserDto.password);
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
         data: {
@@ -240,7 +242,9 @@ describe('UsersService', () => {
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: mockUser.id },
       });
-      expect(mockCacheService.set).toHaveBeenCalledWith(`user:${mockUser.id}`, mockUser, { ttl: 900 });
+      expect(mockCacheService.set).toHaveBeenCalledWith(`user:${mockUser.id}`, mockUser, {
+        ttl: 900,
+      });
     });
 
     it('should throw NotFoundException if user not found', async () => {

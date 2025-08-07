@@ -24,6 +24,7 @@
     "exactOptionalPropertyTypes": false,
     "paths": {
       "@backend/*": ["apps/backend/src/*"],
+      "@frontend/*": ["apps/frontend/*"],
       "@nestjs-backend/shared": ["libs/shared/src/index.ts"],
       "@shared/*": ["libs/shared/src/*"],
       "@shared/constants": ["libs/shared/src/constants"],

@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { ERROR_CODES } from '@shared/constants';
 
@@ -10,7 +10,7 @@ export class AuthExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
 
-    let code = ERROR_CODES.AUTHENTICATION_ERROR;
+    let code: string = ERROR_CODES.AUTHENTICATION_ERROR;
     let message = 'Authentication failed';
     let details: any;
 

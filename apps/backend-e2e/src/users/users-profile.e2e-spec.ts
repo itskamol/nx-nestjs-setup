@@ -64,8 +64,7 @@ describe('Users Profile Management E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  des;
-  cribe('GET /api/users/me - Get Current User Profile', () => {
+  describe('GET /api/users/me - Get Current User Profile', () => {
     it('should get current user profile for authenticated user', async () => {
       const { user, headers } = await authUtils.createTestScenario(Role.USER);
 
@@ -185,8 +184,7 @@ describe('Users Profile Management E2E Tests', () => {
       TestHelpers.expectValidDateString(data.updatedAt);
     });
   });
-  desc;
-  ribe('PATCH /api/users/me - Update Current User Profile', () => {
+  describe('PATCH /api/users/me - Update Current User Profile', () => {
     it('should update current user profile', async () => {
       const { user, headers } = await authUtils.createTestScenario(Role.USER);
       const updateData = DataFactory.createUpdateUserData({
@@ -386,8 +384,7 @@ describe('Users Profile Management E2E Tests', () => {
       expect(response.body.data.role).toBe('MODERATOR');
     });
   });
-  describ;
-  e('PATCH /api/users/me/password - Update Current User Password', () => {
+  describe('PATCH /api/users/me/password - Update Current User Password', () => {
     it('should update current user password', async () => {
       const { user, headers } = await authUtils.createTestScenario(Role.USER);
       const newPassword = 'NewStrongPassword123!';
@@ -531,7 +528,7 @@ describe('Users Profile Management E2E Tests', () => {
     });
 
     it('should handle concurrent password update requests', async () => {
-      const { user, headers } = await authUtils.createTestScenario(Role.USER);
+      const { headers } = await authUtils.createTestScenario(Role.USER);
       const newPassword1 = 'NewPassword1_123!';
       const newPassword2 = 'NewPassword2_123!';
 
@@ -600,7 +597,7 @@ describe('Users Profile Management E2E Tests', () => {
     });
 
     it('should handle profile updates with transaction safety', async () => {
-      const { user, headers } = await authUtils.createTestScenario(Role.USER);
+      const { headers } = await authUtils.createTestScenario(Role.USER);
       const updateData = {
         firstName: 'TransactionTest',
         lastName: 'SafetyTest',

@@ -64,8 +64,7 @@ describe('Face Record Management E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  de;
-  scribe('GET /api/face-recognition/records - Get Face Records with Pagination', () => {
+  describe('GET /api/face-recognition/records - Get Face Records with Pagination', () => {
     it('should get paginated face records for authenticated users', async () => {
       const { headers } = await authUtils.createTestScenario(Role.USER);
 
@@ -330,8 +329,7 @@ describe('Face Record Management E2E Tests', () => {
       TestHelpers.expectValidUUID(data.id);
     });
   });
-  d;
-  escribe('PUT /api/face-recognition/records/:id - Update Face Record', () => {
+  describe('PUT /api/face-recognition/records/:id - Update Face Record', () => {
     it('should update face record as admin', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
       const testUser = await dbManager.createTestUser();

@@ -64,8 +64,7 @@ describe('Face Recognition Core E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  de;
-  scribe('POST /api/face-recognition/enroll - Face Enrollment', () => {
+  describe('POST /api/face-recognition/enroll - Face Enrollment', () => {
     it('should enroll a new face as admin', async () => {
       const { user, headers } = await authUtils.createTestScenario(Role.ADMIN);
       const faceRecordData = DataFactory.createFaceRecordData({
@@ -376,8 +375,7 @@ describe('Face Recognition Core E2E Tests', () => {
       }
     });
   });
-  d;
-  escribe('POST /api/face-recognition/recognize-base64 - Face Recognition with Base64 Data', () => {
+  describe('POST /api/face-recognition/recognize-base64 - Face Recognition with Base64 Data', () => {
     it('should recognize faces from base64 image data', async () => {
       const { headers } = await authUtils.createTestScenario(Role.USER);
 

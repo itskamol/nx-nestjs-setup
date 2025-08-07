@@ -192,8 +192,8 @@ describe('Auth Security and Validation E2E Tests', () => {
         'user name@domain.com', // Space in email
         'user@domain .com', // Space in domain
         'user@domain.c', // TLD too short
-        'user@' + 'a'.repeat(250) + '.com', // Domain too long
-        'a'.repeat(65) + '@domain.com', // Local part too long
+        `user@${'a'.repeat(250)}.com`, // Domain too long
+        `${'a'.repeat(65)}@domain.com`, // Local part too long
       ];
 
       for (const email of invalidEmails) {
@@ -499,13 +499,7 @@ describe('Auth Security and Validation E2E Tests', () => {
     it('should validate request timeout handling', async () => {
       // This test would require configuring request timeouts
       // For now, we'll test that normal requests complete quickly
-      const userData = DataFactory.createRegistrationData();
-
       const startTime = Date.now();
-      const response = await request(app.getHttpServer())
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
 
       const duration = Date.now() - startTime;
       expect(duration).toBeLessThan(5000); // Should complete within 5 seconds

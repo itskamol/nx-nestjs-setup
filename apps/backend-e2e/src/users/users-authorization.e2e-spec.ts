@@ -64,16 +64,7 @@ describe('Users Authorization and Security E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  de;
-  scribe('Role-Based Access Control for User Endpoints', () => {
-    const userEndpoints = [
-      { method: 'post', path: '/api/users', adminOnly: true },
-      { method: 'get', path: '/api/users', adminModerator: true },
-      { method: 'get', path: '/api/users/me', authenticated: true },
-      { method: 'patch', path: '/api/users/me', authenticated: true },
-      { method: 'patch', path: '/api/users/me/password', authenticated: true },
-    ];
-
+  describe('Role-Based Access Control for User Endpoints', () => {
     it('should allow admin access to all user endpoints', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
       const testUser = await dbManager.createTestUser();
@@ -228,10 +219,8 @@ describe('Users Authorization and Security E2E Tests', () => {
       await request(app.getHttpServer()).delete(`/api/users/${testUser.id}`).expect(401);
     });
   });
-  d;
-  escribe('Unauthorized Access Attempts and Proper Error Responses', () => {
+  describe('Unauthorized Access Attempts and Proper Error Responses', () => {
     it('should return consistent 401 errors for invalid tokens', async () => {
-      const testUser = await dbManager.createTestUser();
       const invalidTokens = [
         'Bearer invalid.token',
         'Bearer expired.token.here',
@@ -351,8 +340,7 @@ describe('Users Authorization and Security E2E Tests', () => {
       TestHelpers.expectUnauthorizedResponse(response);
     });
   });
-  desc;
-  ribe('Input Validation and Data Integrity', () => {
+  describe('Input Validation and Data Integrity', () => {
     it('should validate user creation data thoroughly', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
 
@@ -553,8 +541,7 @@ describe('Users Authorization and Security E2E Tests', () => {
       expect(data.isActive).toBe(user.isActive); // Should remain unchanged
     });
   });
-  des;
-  cribe('Security Headers and Response Protection', () => {
+  describe('Security Headers and Response Protection', () => {
     it('should include proper security headers in all responses', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
 
@@ -605,8 +592,6 @@ describe('Users Authorization and Security E2E Tests', () => {
     });
 
     it('should handle CORS requests properly', async () => {
-      const { headers } = await authUtils.createTestScenario(Role.ADMIN);
-
       const response = await request(app.getHttpServer())
         .options('/api/users')
         .set('Origin', 'http://localhost:3000')

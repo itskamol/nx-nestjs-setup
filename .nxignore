@@ -1,0 +1,29 @@
+# Nx ignore patterns
+node_modules
+dist
+.next
+coverage
+*.log
+.env*
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+apps/*/dist
+apps/*/.next
+libs/*/dist
+
+# Test artifacts
+coverage/
+*.lcov
+junit.xml
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

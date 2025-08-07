@@ -438,7 +438,7 @@ describe('Auth Profile and Security E2E Tests', () => {
         'bearer token', // Wrong case
         'Basic token', // Wrong auth type
         'Bearer token.with.dots but.invalid',
-        'Bearer ' + 'a'.repeat(1000), // Extremely long token
+        `Bearer ${'a'.repeat(1000)}`, // Extremely long token
       ];
 
       for (const header of malformedHeaders) {
@@ -477,7 +477,7 @@ describe('Auth Profile and Security E2E Tests', () => {
 
       // Tamper with token signature
       const tokenParts = tokens.accessToken.split('.');
-      const tamperedToken = tokenParts[0] + '.' + tokenParts[1] + '.tampered_signature';
+      const tamperedToken = `${tokenParts[0]}.${tokenParts[1]}.tampered_signature`;
 
       const response = await request(app.getHttpServer())
         .get('/api/auth/me')
@@ -496,7 +496,7 @@ describe('Auth Profile and Security E2E Tests', () => {
       const tamperedPayload = Buffer.from('{"sub":"fake-user-id","role":"ADMIN"}').toString(
         'base64'
       );
-      const tamperedToken = tokenParts[0] + '.' + tamperedPayload + '.' + tokenParts[2];
+      const tamperedToken = `${tokenParts[0]}.${tamperedPayload}.${tokenParts[2]}`;
 
       const response = await request(app.getHttpServer())
         .get('/api/auth/me')
@@ -507,18 +507,6 @@ describe('Auth Profile and Security E2E Tests', () => {
     });
 
     it('should handle token with future issued time', async () => {
-      const testUser = await dbManager.createTestUser();
-
-      // Create token with future iat (issued at time)
-      const futureTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour in future
-      const payload = {
-        sub: testUser.id,
-        email: testUser.email,
-        role: testUser.role,
-        iat: futureTime,
-        exp: futureTime + 3600,
-      };
-
       // This would require manual JWT creation with future iat
       // For now, we'll test with an obviously invalid token
       const response = await request(app.getHttpServer())

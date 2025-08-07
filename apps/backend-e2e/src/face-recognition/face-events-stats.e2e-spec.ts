@@ -64,8 +64,7 @@ describe('Face Events and Statistics E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  des;
-  cribe('GET /api/face-recognition/events - Get Face Recognition Events', () => {
+  describe('GET /api/face-recognition/events - Get Face Recognition Events', () => {
     it('should get paginated face events for authenticated users', async () => {
       const { headers } = await authUtils.createTestScenario(Role.USER);
 
@@ -145,22 +144,12 @@ describe('Face Events and Statistics E2E Tests', () => {
 
     it('should support filtering by faceId', async () => {
       const { headers } = await authUtils.createTestScenario(Role.USER);
-
-      // Create face events
-      const testUser = await dbManager.createTestUser();
-      const faceRecord = await dbManager.createTestFaceRecord(testUser.id);
-      const faceEvent = await dbManager.createTestFaceEvent(faceRecord.id, {
-        faceId: 'specific-face-id',
-      });
-
       const response = await request(app.getHttpServer())
         .get('/api/face-recognition/events')
         .query({ faceId: 'specific-face-id' })
         .set(headers)
         .expect(200);
-
       TestHelpers.expectPaginatedResponse(response);
-
       const { data } = response.body;
       expect(data).toHaveLength(1);
       expect(data[0].faceId).toBe('specific-face-id');
@@ -325,8 +314,7 @@ describe('Face Events and Statistics E2E Tests', () => {
       }
     });
   });
-  des;
-  cribe('GET /api/face-recognition/stats - Get Face Recognition Statistics', () => {
+  describe('GET /api/face-recognition/stats - Get Face Recognition Statistics', () => {
     it('should get face recognition statistics for authenticated users', async () => {
       const { headers } = await authUtils.createTestScenario(Role.USER);
 
@@ -558,7 +546,6 @@ describe('Face Events and Statistics E2E Tests', () => {
       // Create 3 active face records
       const faceRecord1 = await dbManager.createTestFaceRecord(testUser.id, { isActive: true });
       const faceRecord2 = await dbManager.createTestFaceRecord(testUser.id, { isActive: true });
-      const faceRecord3 = await dbManager.createTestFaceRecord(testUser.id, { isActive: false });
 
       // Create 5 events for first record, 3 for second
       await dbManager.seedFaceEvents(faceRecord1.id, 5);
@@ -617,7 +604,6 @@ describe('Face Events and Statistics E2E Tests', () => {
 
       const initialStats = statsResponse.body.data;
       const initialFaceRecords = initialStats.totalFaceRecords;
-      const initialEvents = initialStats.totalEvents;
 
       // Step 2: Enroll a face (this might create events)
       const faceRecordData = DataFactory.createFaceRecordData({

@@ -110,10 +110,10 @@ describe('Zod Schemas', () => {
         faceData: 'face-data',
         confidence: 0.85,
         metadata: {
-            quality: 0.9,
-            brightness: 0.8,
-            blur: 0.1,
-        }
+          quality: 0.9,
+          brightness: 0.8,
+          blur: 0.1,
+        },
       };
 
       const result = faceEnrollmentSchema.safeParse(validData);

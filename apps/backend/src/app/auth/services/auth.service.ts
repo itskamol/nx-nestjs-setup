@@ -40,11 +40,11 @@ export class AuthService {
     };
 
     const user = await this.usersService.create(userDto);
-    const tokens = await this.jwtService.generateTokens(user);
+    const tokens = await this.jwtService.generateTokens(user as User);
 
     this.logger.log(`User registered successfully: ${user.email}`);
 
-    return this.jwtService.createAuthResponse(user, tokens);
+    return this.jwtService.createAuthResponse(user as User, tokens);
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponse> {
@@ -96,12 +96,12 @@ export class AuthService {
       throw new UnauthorizedException('Account is deactivated');
     }
 
-    const tokens = await this.jwtService.generateTokens(user);
+    const tokens = await this.jwtService.generateTokens(user as User);
     await this.blacklistToken(refreshTokenDto.refreshToken);
 
     this.logger.log(`Token refreshed for user: ${user.email}`);
 
-    return this.jwtService.createAuthResponse(user, tokens);
+    return this.jwtService.createAuthResponse(user as User, tokens);
   }
 
   async logout(refreshToken: string): Promise<void> {

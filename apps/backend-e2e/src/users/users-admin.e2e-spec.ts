@@ -64,8 +64,7 @@ describe('Users Admin Operations E2E Tests', () => {
   afterEach(async () => {
     await TestHelpers.cleanupTestData();
   });
-  d;
-  escribe('PATCH /api/users/:id - Update User (Admin Only)', () => {
+  describe('PATCH /api/users/:id - Update User (Admin Only)', () => {
     it('should update user as admin', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
       const targetUser = await dbManager.createTestUser();
@@ -255,8 +254,7 @@ describe('Users Admin Operations E2E Tests', () => {
       expect(response.body.data.role).toBe('MODERATOR');
     });
   });
-  descri;
-  be('DELETE /api/users/:id - Delete User (Admin Only)', () => {
+  describe('DELETE /api/users/:id - Delete User (Admin Only)', () => {
     it('should delete user as admin', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
       const targetUser = await dbManager.createTestUser();
@@ -357,8 +355,7 @@ describe('Users Admin Operations E2E Tests', () => {
       expect(stillExistsUser).toBeDefined();
     });
   });
-  desc;
-  ribe('PATCH /api/users/:id/deactivate - Deactivate User (Admin Only)', () => {
+  describe('PATCH /api/users/:id/deactivate - Deactivate User (Admin Only)', () => {
     it('should deactivate user as admin', async () => {
       const { headers } = await authUtils.createTestScenario(Role.ADMIN);
       const targetUser = await dbManager.createTestUser({ isActive: true });

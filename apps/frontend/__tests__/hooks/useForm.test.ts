@@ -2,7 +2,6 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { useForm } from '@/hooks/useForm';
 import { z } from 'zod';
 
-
 describe('useForm hook', () => {
   const testSchema = z.object({
     name: z.string().min(1, 'Name is required'),

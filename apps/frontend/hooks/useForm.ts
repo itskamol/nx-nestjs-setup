@@ -9,11 +9,7 @@ interface UseFormOptions<T extends Record<string, unknown>> {
 }
 
 export function useForm<T extends Record<string, unknown>>(options: UseFormOptions<T>) {
-  const {
-    initialValues,
-    validationSchema,
-    onSubmit,
-  } = options;
+  const { initialValues, validationSchema, onSubmit } = options;
 
   const createInitialFieldState = useCallback(
     (value: T[keyof T], key: keyof T): FormField<T[keyof T]> => {
@@ -32,17 +28,17 @@ export function useForm<T extends Record<string, unknown>>(options: UseFormOptio
 
   const createInitialFormState = useCallback(
     (values: T): FormState<T> => {
-        if(!values) {
-            return {
-                fields: {} as FormState<T>['fields'],
-                isValid: true,
-                isSubmitting: false,
-                submitCount: 0,
-                isDirty: false,
-                errors: {},
-                touched: {},
-              };
-        }
+      if (!values) {
+        return {
+          fields: {} as FormState<T>['fields'],
+          isValid: true,
+          isSubmitting: false,
+          submitCount: 0,
+          isDirty: false,
+          errors: {},
+          touched: {},
+        };
+      }
       const fields = Object.keys(values).reduce(
         (acc, key) => {
           acc[key as keyof T] = createInitialFieldState(values[key as keyof T], key as keyof T);
@@ -103,10 +99,13 @@ export function useForm<T extends Record<string, unknown>>(options: UseFormOptio
     const result = await validationSchema.safeParseAsync(values);
 
     if (!result.success) {
-      const newErrors = result.error.issues.reduce((acc, issue) => {
-        acc[issue.path[0] as keyof T] = issue.message;
-        return acc;
-      }, {} as Record<keyof T, string>);
+      const newErrors = result.error.issues.reduce(
+        (acc, issue) => {
+          acc[issue.path[0] as keyof T] = issue.message;
+          return acc;
+        },
+        {} as Record<keyof T, string>
+      );
       setFormState(prevState => ({
         ...prevState,
         errors: newErrors,
@@ -139,7 +138,11 @@ export function useForm<T extends Record<string, unknown>>(options: UseFormOptio
       await onSubmit(values, event);
     }
 
-    setFormState(prevState => ({ ...prevState, isSubmitting: false, submitCount: prevState.submitCount + 1 }));
+    setFormState(prevState => ({
+      ...prevState,
+      isSubmitting: false,
+      submitCount: prevState.submitCount + 1,
+    }));
   };
 
   const getFieldProps = (name: keyof T) => {

@@ -134,6 +134,8 @@ export function useField<T>({
     setIsValidatingState(false);
   }, [initialValue]);
 
+  const validateCurrent = useCallback(() => validate(value), [validate, value]);
+
   const getProps = useCallback(
     () => ({
       value,
@@ -160,7 +162,7 @@ export function useField<T>({
     setError,
     setTouched,
     reset,
-    validate,
+    validate: validateCurrent,
     getProps,
   };
 }
@@ -180,7 +182,7 @@ export function useEmailField(
     initialValue?: string;
   }
 ) {
-  const emailSchema = z.string().email('Please enter a valid email address');
+  const emailSchema = z.email('Please enter a valid email address');
   return useField({
     initialValue: options.initialValue || '',
     validationSchema: emailSchema,

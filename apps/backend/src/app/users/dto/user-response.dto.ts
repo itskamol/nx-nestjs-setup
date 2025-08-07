@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { Role } from '@prisma/client';
 
@@ -17,19 +17,19 @@ export class UserResponseDto {
   @Expose()
   email: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'User first name',
     example: 'John',
   })
   @Expose()
-  firstName?: string;
+  firstName: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'User last name',
     example: 'Doe',
   })
   @Expose()
-  lastName?: string;
+  lastName: string;
 
   @ApiProperty({
     description: 'User role',
