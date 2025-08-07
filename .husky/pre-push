@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Temporarily disabled tests for push - uncomment when tests are fixed
-# npm run test
-echo "⚠️  Tests temporarily disabled for push. Please fix tests and re-enable."
