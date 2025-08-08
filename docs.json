@@ -1,0 +1,1163 @@
+[
+  {
+    "module_name": "employee_user_management",
+    "summary_en": "This module provides APIs for comprehensive management of individuals within the access control system. It allows for adding, searching, modifying, and deleting person records. Each person is identified by a unique 'employeeNo', which serves as the primary key for linking credentials like cards, fingerprints, and faces.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/capabilities",
+        "description_en": "Retrieves the capabilities of the device for person management, indicating supported functions (like search, add, edit) and limitations (like max number of users).",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "UserInfo",
+                "type": "object",
+                "required": true,
+                "description": "Root object for user information capabilities.",
+                "sub_fields": [
+                  {
+                    "name": "maxRecordNum",
+                    "type": "integer",
+                    "description": "The maximum number of persons supported by the device."
+                  },
+                  {
+                    "name": "supportFunction",
+                    "type": "string",
+                    "description": "A comma-separated list of supported functions. Values can include 'get' (search), 'post' (add), 'put' (edit/modify), 'setUp' (apply/add or edit)."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Count",
+        "description_en": "Retrieves the total number of persons currently added to the device.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "UserInfoCount",
+                "type": "object",
+                "required": true,
+                "description": "Contains the count of users.",
+                "sub_fields": [
+                  {
+                    "name": "userNumber",
+                    "type": "integer",
+                    "required": true,
+                    "description": "Total number of persons added to the device."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Search",
+        "description_en": "Searches for person information on the device. Supports pagination and filtering by various criteria like employee number, name, and linked credential status.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserInfoSearchCond",
+                "type": "object",
+                "required": true,
+                "description": "Search conditions for filtering users.",
+                "sub_fields": [
+                  {
+                    "name": "searchID",
+                    "type": "string",
+                    "required": true,
+                    "description": "A unique ID for the search session. If the same ID is used in subsequent searches, the device may use cached results for faster response."
+                  },
+                  {
+                    "name": "searchResultPosition",
+                    "type": "integer",
+                    "required": true,
+                    "description": "Starting position for the search results, used for pagination. Set to 0 for the first page."
+                  },
+                  {
+                    "name": "maxResults",
+                    "type": "integer",
+                    "required": true,
+                    "description": "Maximum number of results to return in a single response."
+                  },
+                  {
+                    "name": "employeeNoList",
+                    "type": "array",
+                    "required": false,
+                    "description": "An array of objects to search for specific employee numbers.",
+                    "sub_fields": [
+                      {
+                        "name": "employeeNo",
+                        "type": "string",
+                        "description": "The employee number to search for."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "UserInfoSearch",
+                "type": "object",
+                "required": true,
+                "description": "Contains the search results.",
+                "sub_fields": [
+                  {
+                    "name": "responseStatusStrg",
+                    "type": "string",
+                    "required": true,
+                    "description": "Indicates the status of the search. Enum: 'OK' (search completed), 'MORE' (more data available), 'NO MATCH' (no results found)."
+                  },
+                  {
+                    "name": "numOfMatches",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The number of records returned in this response."
+                  },
+                  {
+                    "name": "totalMatches",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The total number of records that match the search criteria."
+                  },
+                  {
+                    "name": "UserInfo",
+                    "type": "array",
+                    "required": false,
+                    "description": "An array of user information objects matching the search criteria."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/SetUp",
+        "description_en": "Applies person information to the device. This function acts as an 'upsert': if the person (identified by employeeNo) exists, their information is updated; if not, a new person is created.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserInfo",
+                "type": "object",
+                "required": true,
+                "description": "The person's information to be applied.",
+                "sub_fields": [
+                  {
+                    "name": "employeeNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "Unique identifier for the person."
+                  },
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "required": false,
+                    "description": "Name of the person."
+                  },
+                  {
+                    "name": "userType",
+                    "type": "string",
+                    "required": true,
+                    "description": "Type of the person. Enum: 'normal', 'visitor', 'blackList'."
+                  },
+                  {
+                    "name": "Valid",
+                    "type": "object",
+                    "required": true,
+                    "description": "Defines the validity period for the person.",
+                    "sub_fields": [
+                      {
+                        "name": "enable",
+                        "type": "boolean",
+                        "required": true,
+                        "description": "Set to true to enable a specific validity period, false for permanent validity."
+                      },
+                      {
+                        "name": "beginTime",
+                        "type": "string",
+                        "required": false,
+                        "description": "Start time of the validity period in ISO 8601 format (e.g., '1970-01-01T00:00:00+08:00'). Required if enable is true."
+                      },
+                      {
+                        "name": "endTime",
+                        "type": "string",
+                        "required": false,
+                        "description": "End time of the validity period in ISO 8601 format (e.g., '2037-12-31T23:59:59+08:00'). Required if enable is true."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates success (1) or failure."
+              },
+              {
+                "name": "statusString",
+                "type": "string",
+                "description": "Status description (e.g., 'ok')."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Record",
+        "description_en": "Adds a new person to the device. This is a strict 'create' operation. If a person with the same 'employeeNo' already exists, the device will return an error.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserInfo",
+                "type": "object",
+                "required": true,
+                "description": "The person's information to be added.",
+                "sub_fields": [
+                  {
+                    "name": "employeeNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "Unique identifier for the new person."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates success (1) or failure."
+              },
+              {
+                "name": "statusString",
+                "type": "string",
+                "description": "Status description (e.g., 'ok')."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Modify",
+        "description_en": "Edits the information of an existing person on the device. This is a strict 'update' operation. If the person identified by 'employeeNo' does not exist, the device will report an error.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserInfo",
+                "type": "object",
+                "required": true,
+                "description": "The person's information to be modified.",
+                "sub_fields": [
+                  {
+                    "name": "employeeNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "Identifier of the person to modify."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates success (1) or failure."
+              },
+              {
+                "name": "statusString",
+                "type": "string",
+                "description": "Status description (e.g., 'ok')."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfoDetail/Delete",
+        "description_en": "Deletes one or more persons from the device. This is an asynchronous operation. After calling this endpoint, you must poll the '/DeleteProcess' endpoint to check the deletion progress.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserInfoDetail",
+                "type": "object",
+                "required": true,
+                "description": "Specifies the deletion mode and targets.",
+                "sub_fields": [
+                  {
+                    "name": "mode",
+                    "type": "string",
+                    "required": true,
+                    "description": "Deletion mode. Enum: 'byEmployeeNo' (delete specific users), 'all' (delete all users)."
+                  },
+                  {
+                    "name": "EmployeeNoList",
+                    "type": "array",
+                    "required": false,
+                    "description": "An array of employee numbers to be deleted. Required if mode is 'byEmployeeNo'.",
+                    "sub_fields": [
+                      {
+                        "name": "employeeNo",
+                        "type": "string",
+                        "description": "The employee number to delete."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates if the delete process has started successfully."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserInfoDetail/DeleteProcess",
+        "description_en": "Polls the progress of an asynchronous person deletion task initiated by the '/Delete' endpoint.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "progress",
+                "type": "integer",
+                "description": "Deletion progress percentage."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "dependencies": [],
+    "notes": "The 'employeeNo' is the central unique identifier for a person and is mandatory for linking any credentials (card, face, fingerprint). When deleting a person, all associated credentials are also deleted."
+  },
+  {
+    "module_name": "face_recognition",
+    "summary_en": "This module handles all operations related to face pictures, which act as credentials for person authentication. It includes creating face libraries, adding/updating face records, linking them to persons via 'employeeNo', searching for faces, and deleting them. It supports both visible light and infrared face pictures for enhanced security.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/Intelligent/FDLib/capabilities",
+        "description_en": "Retrieves the capabilities of the device related to face picture libraries and face data management.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "FDLibCap",
+                "type": "object",
+                "required": true,
+                "description": "Contains face library capabilities.",
+                "sub_fields": [
+                  {
+                    "name": "FDRecordDataMaxNum",
+                    "type": "integer",
+                    "description": "The maximum number of face picture records supported by the device."
+                  },
+                  {
+                    "name": "supportFDFunction",
+                    "type": "string",
+                    "description": "A comma-separated list of supported functions on the face library, e.g., 'post,delete,put,get,setUp'."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FDSearch",
+        "description_en": "Searches for face picture records within one or more face libraries based on specified criteria. Supports pagination.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "FDSearchDescription",
+                "type": "object",
+                "required": true,
+                "description": "Contains search conditions.",
+                "sub_fields": [
+                  {
+                    "name": "searchID",
+                    "type": "string",
+                    "required": true,
+                    "description": "Unique ID for the search session."
+                  },
+                  {
+                    "name": "searchResultPosition",
+                    "type": "integer",
+                    "required": true,
+                    "description": "Starting position for pagination (0 for the first page)."
+                  },
+                  {
+                    "name": "maxResults",
+                    "type": "integer",
+                    "required": true,
+                    "description": "Maximum number of results to return."
+                  },
+                  {
+                    "name": "FDID",
+                    "type": "string",
+                    "required": false,
+                    "description": "ID of the face library to search in."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "FCSearchResult",
+                "type": "object",
+                "required": true,
+                "description": "Contains the search results.",
+                "sub_fields": [
+                  {
+                    "name": "responseStatusStrg",
+                    "type": "string",
+                    "description": "Status of the search ('OK', 'MORE', 'NO MATCH')."
+                  },
+                  {
+                    "name": "MatchList",
+                    "type": "array",
+                    "description": "List of matching face records.",
+                    "sub_fields": [
+                      {
+                        "name": "employeeNo",
+                        "type": "string",
+                        "description": "The employee ID linked to the face."
+                      },
+                      {
+                        "name": "faceURL",
+                        "type": "string",
+                        "description": "URL of the face picture."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FaceDataRecord",
+        "description_en": "Adds a new face picture record to a specified face library. This is a strict 'create' operation and will fail if the face record (identified by FPID or linked employeeNo) already exists. The request is sent as 'multipart/form-data', with one part for the JSON metadata and another for the binary image data.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "FaceDataRecord",
+                "type": "object",
+                "required": true,
+                "description": "JSON part of the multipart request, containing metadata for the face record.",
+                "sub_fields": [
+                  {
+                    "name": "faceLibType",
+                    "type": "string",
+                    "required": true,
+                    "description": "Type of the face library. Enum: 'blackFD' (blocklist), 'staticFD' (allowlist/normal)."
+                  },
+                  {
+                    "name": "FDID",
+                    "type": "string",
+                    "required": true,
+                    "description": "The ID of the face library to add the record to."
+                  },
+                  {
+                    "name": "FPID",
+                    "type": "string",
+                    "required": false,
+                    "description": "Face picture record ID. If not provided, it is often generated by the device and linked to the employeeNo."
+                  },
+                  {
+                    "name": "employeeNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "The employee ID to link this face picture to."
+                  }
+                ]
+              },
+              {
+                "name": "FacePicture",
+                "type": "binary",
+                "required": true,
+                "description": "Binary image data part of the multipart request (e.g., image/jpeg)."
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "FPID",
+                "type": "string",
+                "description": "The unique ID of the newly created face record."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FDModify",
+        "description_en": "Edits an existing face picture record. This can be used to update the person's name, metadata, or replace the face picture itself. The request is sent as 'multipart/form-data'.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "FaceDataRecord",
+                "type": "object",
+                "required": true,
+                "description": "JSON metadata for the face record to be modified.",
+                "sub_fields": [
+                  {
+                    "name": "FDID",
+                    "type": "string",
+                    "required": true,
+                    "description": "ID of the face library containing the record."
+                  },
+                  {
+                    "name": "FPID",
+                    "type": "string",
+                    "required": true,
+                    "description": "ID of the face picture record to modify."
+                  }
+                ]
+              },
+              {
+                "name": "FacePicture",
+                "type": "binary",
+                "required": false,
+                "description": "Optional new binary image data to replace the existing picture."
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates success or failure."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FDSearch/Delete",
+        "description_en": "Deletes face picture records from a specified library. Can delete all pictures in a library or specific ones identified by FPID or employeeNo.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "FDSearchDescription",
+                "type": "object",
+                "required": true,
+                "description": "Specifies which face records to delete.",
+                "sub_fields": [
+                  {
+                    "name": "FDID",
+                    "type": "string",
+                    "required": true,
+                    "description": "The ID of the face library from which to delete records."
+                  },
+                  {
+                    "name": "FPID",
+                    "type": "array",
+                    "required": false,
+                    "description": "An array of face picture IDs to delete."
+                  },
+                  {
+                    "name": "employeeNo",
+                    "type": "array",
+                    "required": false,
+                    "description": "An array of employee numbers whose faces should be deleted."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Indicates success or failure."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "dependencies": [
+      "employee_user_management"
+    ],
+    "notes": "Face management is tightly coupled with Person Management via the 'employeeNo'. A person record must exist before adding a face picture for them. The API supports both visible light (FDID=1) and infrared (FDID=2) face libraries on devices that support 'deepMode' for anti-spoofing."
+  },
+  {
+    "module_name": "week_plan_configuration",
+    "summary_en": "This module allows for the creation and management of weekly schedules for various access control functions. Separate weekly plans can be configured for door status (e.g., remain open, remain closed), card reader verification modes, user access rights, and attendance rules. These plans are then typically linked to templates and holiday groups to form a complete authorization schedule.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/DoorStatusWeekPlanCfg/capabilities",
+        "description_en": "Retrieves the capabilities for configuring door status weekly schedules, such as the number of supported plans and time segments.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "DoorStatusWeekPlanCfg",
+                "type": "object",
+                "description": "Contains capabilities for door status week plans.",
+                "sub_fields": [
+                  {
+                    "name": "planNo",
+                    "type": "object",
+                    "description": "Indicates the range of supported plan numbers (@min, @max)."
+                  },
+                  {
+                    "name": "WeekPlanCfg.maxSize",
+                    "type": "integer",
+                    "description": "Maximum number of time segments allowed in a week plan (e.g., 56)."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/DoorStatusWeekPlanCfg/<weekPlanID>",
+        "description_en": "Creates or updates a weekly schedule that defines the status of a door (e.g., remain open, remain closed, normal) for different time periods on each day of the week.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "DoorStatusWeekPlanCfg",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the door status week plan.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this week plan."
+                  },
+                  {
+                    "name": "WeekPlanCfg",
+                    "type": "array",
+                    "required": true,
+                    "description": "Array of time segments for each day.",
+                    "sub_fields": [
+                      {
+                        "name": "week",
+                        "type": "string",
+                        "required": true,
+                        "description": "Day of the week. Enum: 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'."
+                      },
+                      {
+                        "name": "id",
+                        "type": "integer",
+                        "required": true,
+                        "description": "Time period number (1-8)."
+                      },
+                      {
+                        "name": "enable",
+                        "type": "boolean",
+                        "required": true,
+                        "description": "Enable or disable this specific time segment."
+                      },
+                      {
+                        "name": "doorStatus",
+                        "type": "string",
+                        "required": true,
+                        "description": "The desired door status during this time. Enum: 'remainOpen', 'remainClosed', 'normal'."
+                      },
+                      {
+                        "name": "TimeSegment",
+                        "type": "object",
+                        "required": true,
+                        "description": "The time range for this rule.",
+                        "sub_fields": [
+                          {
+                            "name": "beginTime",
+                            "type": "string",
+                            "required": true,
+                            "description": "Start time in HH:mm:ss format."
+                          },
+                          {
+                            "name": "endTime",
+                            "type": "string",
+                            "required": true,
+                            "description": "End time in HH:mm:ss format."
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/VerifyWeekPlanCfg/<weekPlanID>",
+        "description_en": "Creates or updates a weekly schedule for card reader verification modes. This allows specifying different authentication methods (e.g., card only, card + PIN) for various times of the day and week.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "VerifyWeekPlanCfg",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the card reader verification week plan.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this plan."
+                  },
+                  {
+                    "name": "WeekPlanCfg",
+                    "type": "array",
+                    "required": true,
+                    "description": "Array of time segments specifying verification modes.",
+                    "sub_fields": [
+                      {
+                        "name": "verifyMode",
+                        "type": "string",
+                        "required": true,
+                        "description": "Authentication mode. Enum: 'cardAndPw', 'card', 'cardOrPw', 'fp', 'face', 'faceAndCard', etc."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserRightWeekPlanCfg/<weekPlanID>",
+        "description_en": "Creates or updates a weekly schedule that defines a generic time-based permission plan. This plan doesn't directly control a door but acts as a named schedule that can be assigned to users or groups as part of their access rights.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserRightWeekPlanCfg",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the user rights week plan.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this plan."
+                  },
+                  {
+                    "name": "WeekPlanCfg",
+                    "type": "array",
+                    "required": true,
+                    "description": "Array of active time segments for the week."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/Attendance/weekPlan/<PlanNo>",
+        "description_en": "Creates or updates a weekly schedule for attendance purposes, defining the time periods within which attendance events (like check-in, break-out) are considered valid.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "AttendanceWeekPlan",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the attendance week plan.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this plan."
+                  },
+                  {
+                    "name": "WeekPlanCfg",
+                    "type": "array",
+                    "required": true,
+                    "description": "Array of time segments valid for attendance."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "dependencies": [
+      "Access Control and Scheduling"
+    ],
+    "notes": "Weekly plans are fundamental building blocks for creating complex schedules. They are identified by an ID (e.g., weekPlanID) and can be combined with Holiday Plans into a Template, which is then assigned to a door, card reader, or user."
+  },
+  {
+    "module_name": "access_control_and_scheduling",
+    "summary_en": "This module covers the core configuration of access control points (doors) and the creation of reusable schedule components like templates and holiday groups. These components are combined to define when and how users can gain access.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/Door/param/<doorID>/capabilities",
+        "description_en": "Retrieves the configuration capabilities for a specific door, including supported magnetic types, button types, and value ranges for timers.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "DoorParam",
+                "type": "object",
+                "description": "Contains door parameter capabilities.",
+                "sub_fields": [
+                  {
+                    "name": "openDuration",
+                    "type": "object",
+                    "description": "Range of supported values for door open duration (@min, @max)."
+                  },
+                  {
+                    "name": "magneticType",
+                    "type": "object",
+                    "description": "Supported magnetic contact types (@opt array, e.g., ['alwaysClose', 'alwaysOpen'])."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/Door/param/<doorID>",
+        "description_en": "Configures the operational parameters for a specific door.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "DoorParam",
+                "type": "object",
+                "required": true,
+                "description": "Door configuration parameters.",
+                "sub_fields": [
+                  {
+                    "name": "doorName",
+                    "type": "string",
+                    "required": false,
+                    "description": "Custom name for the door."
+                  },
+                  {
+                    "name": "openDuration",
+                    "type": "integer",
+                    "required": false,
+                    "description": "Duration in seconds the door remains open after successful authentication (Range: 1-255)."
+                  },
+                  {
+                    "name": "magneticType",
+                    "type": "string",
+                    "required": false,
+                    "description": "Type of the door's magnetic contact sensor. Enum: 'alwaysClose', 'alwaysOpen'."
+                  },
+                  {
+                    "name": "openButtonType",
+                    "type": "string",
+                    "required": false,
+                    "description": "Type of the exit button. Enum: 'alwaysClose', 'alwaysOpen'."
+                  },
+                  {
+                    "name": "enableLeaderCard",
+                    "type": "boolean",
+                    "required": false,
+                    "description": "Enables 'first card open' mode, where the first valid card swipe keeps the door unlocked."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserRightPlanTemplate/capabilities",
+        "description_en": "Retrieves the capabilities for creating user right plan templates, such as the number of supported templates.",
+        "details": {
+          "request_body": {
+            "fields": []
+          },
+          "response_body": {
+            "fields": []
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserRightPlanTemplate/<planTemplateID>",
+        "description_en": "Creates or updates a user rights plan template. A template combines a weekly plan and a holiday group to form a complete, reusable annual schedule.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserRightPlanTemplate",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the template.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this template."
+                  },
+                  {
+                    "name": "templateName",
+                    "type": "string",
+                    "required": true,
+                    "description": "Name of the template."
+                  },
+                  {
+                    "name": "weekPlanNo",
+                    "type": "integer",
+                    "required": true,
+                    "description": "ID of the UserRightWeekPlanCfg to be used for this template."
+                  },
+                  {
+                    "name": "holidayGroupNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "Comma-separated IDs of the UserRightHolidayGroupCfg to be used."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserRightHolidayGroupCfg/<holidayGroupID>",
+        "description_en": "Creates or updates a holiday group. A holiday group is a collection of one or more holiday plans, allowing for the grouping of different holidays (e.g., 'National Holidays', 'Company Holidays').",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserRightHolidayGroupCfg",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the holiday group.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this group."
+                  },
+                  {
+                    "name": "groupName",
+                    "type": "string",
+                    "required": true,
+                    "description": "Name of the holiday group."
+                  },
+                  {
+                    "name": "holidayPlanNo",
+                    "type": "string",
+                    "required": true,
+                    "description": "Comma-separated string of holiday plan IDs to include in this group."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserRightHolidayPlanCfg/<holidayPlanID>",
+        "description_en": "Creates or updates a single holiday plan, which defines a specific date range and the access schedule to be applied during that period.",
+        "details": {
+          "request_body": {
+            "fields": [
+              {
+                "name": "UserRightHolidayPlanCfg",
+                "type": "object",
+                "required": true,
+                "description": "Configuration for the holiday plan.",
+                "sub_fields": [
+                  {
+                    "name": "enable",
+                    "type": "boolean",
+                    "required": true,
+                    "description": "Enable or disable this plan."
+                  },
+                  {
+                    "name": "beginDate",
+                    "type": "string",
+                    "required": true,
+                    "description": "Start date of the holiday in YYYY-MM-DD format."
+                  },
+                  {
+                    "name": "endDate",
+                    "type": "string",
+                    "required": true,
+                    "description": "End date of the holiday in YYYY-MM-DD format."
+                  },
+                  {
+                    "name": "HolidayPlanCfg",
+                    "type": "array",
+                    "required": true,
+                    "description": "Array of time segments defining the schedule for the holiday period."
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body": {
+            "fields": [
+              {
+                "name": "statusCode",
+                "type": "integer",
+                "description": "Standard response status."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "dependencies": [
+      "week_plan_configuration"
+    ],
+    "notes": "The scheduling system is hierarchical: individual TimeSegments make up a Week Plan or Holiday Plan. Holiday Plans are grouped into Holiday Groups. A Week Plan and a Holiday Group are combined into a Plan Template. Finally, this Plan Template is assigned to a door, a card reader, or directly to a user's rights."
+  }
+]
