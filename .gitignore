@@ -185,3 +185,5 @@ ehthumbs_vista.db
 pnpm-lock.yaml
 yarn.lock
 package-lock.json
+node_modules
+node_modules
