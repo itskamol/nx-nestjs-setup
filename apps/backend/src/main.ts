@@ -11,7 +11,7 @@ import { GlobalExceptionFilter } from './app/common/filters';
 
 import { AppConfigService } from './app/config';
 import { PrismaService } from './app/database';
-import { WebSocketEventService } from './app/common/websocket';
+// import { WebSocketEventService } from './app/common/websocket';
 import { TransformInterceptor } from './app/common/interceptors';
 
 async function bootstrap() {
@@ -70,6 +70,11 @@ async function bootstrap() {
     })
   );
 
+  app.use(
+    '/uploads/',
+    express.static(join(process.cwd(), 'uploads'))
+  );
+
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -123,8 +128,8 @@ async function bootstrap() {
   await prismaService.enableShutdownHooks(app);
 
   // Initialize WebSocket event service
-  const webSocketEventService = app.get(WebSocketEventService);
-  await webSocketEventService.startPeriodicUpdates();
+  // const webSocketEventService = app.get(WebSocketEventService);Authentication successful for user:
+  // await webSocketEventService.startPeriodicUpdates();
 
   // Start the application
   await app.listen(configService.port);

@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Post,
   Put,
@@ -23,9 +24,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { HikvisionIsapiService } from '../services/hiki.service';
-import { CreatePersonDto, SetListenerDto } from '../dto/hikvision.dto';
+import { AssignPermissionDto, CreatePermissionTemplateDto, CreatePersonDto, SetListenerDto } from '../dto/hikvision.dto';
 import { RolesGuard } from '@backend/app/common';
+import { UsersService } from '@backend/app/users/users.service';
 
 interface ExpressMulterFile {
   fieldname: string;
@@ -34,6 +37,7 @@ interface ExpressMulterFile {
   mimetype: string;
   buffer: Buffer;
   size: number;
+  path: string; // Added path property for file storage
 }
 
 @ApiTags('Hikvision Device Management')
@@ -41,7 +45,11 @@ interface ExpressMulterFile {
 @Controller('hikvision')
 @UseGuards(RolesGuard) // Example guard to protect routes
 export class HikvisionController {
-  constructor(private readonly hikvisionIsapiService: HikvisionIsapiService) {}
+  constructor(
+    private readonly hikvisionIsapiService: HikvisionIsapiService,
+    @Inject(UsersService)
+    private readonly usersService: UsersService
+  ) {}
 
   @Get('device-info')
   @ApiOperation({
@@ -79,7 +87,16 @@ export class HikvisionController {
 
   @Post('persons/:employeeNo/face')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('faceImage'))
+  @UseInterceptors(
+    FileInterceptor('faceImage', {
+      storage: diskStorage({
+        destination: './uploads', // Directory where files will be stored
+        filename: (req: any, file, cb) => {
+          cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+        },
+      }),
+    })
+  )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Add a Face to a Person',
@@ -110,11 +127,49 @@ export class HikvisionController {
     @Param('employeeNo') employeeNo: string,
     @UploadedFile() faceImage: ExpressMulterFile
   ) {
-    if (!faceImage || !faceImage.buffer) {
+    if (!faceImage || !faceImage.path) {
       throw new BadRequestException('A face image file is required.');
     }
-    await this.hikvisionIsapiService.addFace(employeeNo, faceImage.buffer);
+
+    const user = await this.usersService.uploadProfilePicture(employeeNo, faceImage);
+
+    await this.hikvisionIsapiService.addFaceByUrl(employeeNo, user.avatar);
     return { success: true, message: `Face successfully added to person ${employeeNo}.` };
+  }
+
+  @Post('persons/:employeeNo/permissions')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Assign Permission to a Person',
+    description: 'Assigns a specific permission to a person on the device.',
+  })
+  @ApiParam({
+    name: 'employeeNo',
+    description: 'The unique ID of the person to assign permissions to.',
+  })
+  @ApiBody({ type: AssignPermissionDto })
+  @ApiResponse({ status: 201, description: 'Permission assigned successfully.' })
+  @ApiResponse({ status: 404, description: 'Person not found.' })
+  async assignPermissionToPerson(
+    @Param('employeeNo') employeeNo: string,
+    @Body() assignPermissionDto: AssignPermissionDto
+  ) {
+    const { doorId, planTemplateId } = assignPermissionDto;
+    await this.hikvisionIsapiService.assignPermissionToPerson(employeeNo, doorId, planTemplateId);
+    return { success: true, message: `Permission assigned to person ${employeeNo}.` };
+  }
+
+  @Get('persons/:employeeNo')
+  @ApiOperation({
+    summary: 'Get a Person',
+    description: 'Retrieves information about a specific person from the device.',
+  })
+  @ApiParam({
+    name: 'employeeNo',
+    description: 'The unique ID of the person to retrieve.',
+  })
+  async getPerson(@Param('employeeNo') employeeNo: string): Promise<any> {
+    return this.hikvisionIsapiService.getPerson(employeeNo);
   }
 
   @Delete('persons/:employeeNo')
@@ -143,5 +198,26 @@ export class HikvisionController {
     // The host ID is typically 1 for the primary listener endpoint.
     await this.hikvisionIsapiService.setEventListener(setListenerDto.url, 1);
     return { success: true, message: `Event listener successfully set to ${setListenerDto.url}` };
+  }
+
+  @Post('create-247')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '24/7 ishlaydigan yangi ruxsat shablonini yaratish' })
+  @ApiResponse({ status: 200, description: 'Shablon muvaffaqiyatli sozlandi.' })
+  async create247Template(@Body() dto: CreatePermissionTemplateDto) {
+    await this.hikvisionIsapiService.createOrUpdate247Template(dto);
+    return {
+      success: true,
+      message: `Template #${dto.templateId} named '${dto.templateName}' has been configured for 24/7 access.`,
+    };
+  }
+
+  @Post('event-listener/test')
+  @ApiOperation({
+    summary: 'Test Event Listener',
+    description: 'Sends a test event to the configured event listener endpoint.',
+  })
+  async testEventListener() {
+    await this.hikvisionIsapiService.testEventListener();
   }
 }

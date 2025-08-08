@@ -1,7 +1,7 @@
 // src/hikvision/dto/hikvision.dto.ts
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, Max, Min } from 'class-validator';
 
 export class CreatePersonDto {
   @ApiProperty({
@@ -38,4 +38,44 @@ export class SetListenerDto {
   @IsUrl()
   @IsNotEmpty()
   url: string;
+}
+
+export class AssignPermissionDto {
+  @ApiProperty({
+    description: 'The ID of the door to assign permissions for.',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  doorId: number;
+
+  @ApiProperty({
+    description: 'The ID of the plan template to assign.',
+    example: "1",
+  })
+  @IsString()
+  @IsNotEmpty()
+  planTemplateId: string;
+}
+
+export class CreatePermissionTemplateDto {
+  @ApiProperty({
+    description: 'Sozlanishi kerak bo\'lgan shablonning ID raqami (1-16 oraliqda).',
+    example: 1,
+  })
+  @IsInt()
+  @Min(1)
+  @Max(16)
+  templateId: number;
+
+  @ApiProperty({
+    description: 'Yaratilayotgan shablonga beriladigan nom.',
+    example: '24/7 Ruxsat',
+  })
+  @IsString()
+  @IsNotEmpty()
+  templateName: string;
+
+  // Hozircha faqat 24/7 rejimini yaratishni soddalashtiramiz.
+  // Murakkabroq jadvallar uchun bu yerga qo'shimcha maydonlar qo'shish mumkin.
 }

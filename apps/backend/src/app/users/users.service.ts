@@ -22,6 +22,16 @@ export interface FindUsersOptions {
   isActive?: boolean;
 }
 
+interface ExpressMulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  buffer: Buffer;
+  path: string;
+  size: number;
+}
+
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
@@ -321,6 +331,41 @@ export class UsersService {
 
   async activateUser(id: string): Promise<UserResponseDto> {
     return this.update(id, { isActive: true });
+  }
+
+  async uploadProfilePicture(id: string, file: ExpressMulterFile): Promise<UserResponseDto> {
+    try {
+      // Check if user exists
+      const user = await this.prismaService.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Update profile picture
+      await this.update(id, { avatar: file.path });
+
+      // Update profile picture
+      const updatedUser = await this.prismaService.user.update({
+        where: { id },
+        data: { avatar: file.path },
+      });
+
+      this.logger.log(`Avatar updated for user: ${updatedUser.email}`);
+
+      // Update cache
+      await this.cacheUser(updatedUser);
+
+      return new UserResponseDto(updatedUser);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      this.logger.error(`Failed to upload profile picture for user: ${id}`, error);
+      throw new Error('Profile picture upload failed');
+    }
   }
 
   // Cache helper methods

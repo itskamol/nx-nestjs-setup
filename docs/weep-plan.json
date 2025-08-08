@@ -1,0 +1,157 @@
+{
+  "weekplan_management": {
+    "summary_uz": "Hujjatda 'WeekPlan' (haftalik reja) tizimi qurilmaning turli funksiyalarini haftaning ma'lum kunlari va vaqtlarida avtomatik ravishda boshqarish uchun ishlatiladi. Bu asosan kirishni nazorat qilish (Access Control) modullari uchun qo'llaniladi. Siz davomat, eshik holati, foydalanuvchi huquqlari va kartani o'qish qurilmasi uchun alohida haftalik rejalar yarata olasiz.",
+    "plan_types": [
+      {
+        "type_name_uz": "Davomat uchun haftalik reja (Attendance Week Plan)",
+        "description_uz": "Xodimlarning ishga kelib-ketishini nazorat qilish va davomatni yuritish uchun haftalik jadvallarni sozlash. Bu orqali ma'lum kunlarda va soatlarda davomat qanday qayd etilishini belgilash mumkin.",
+        "api_endpoints": {
+          "get_capability": "GET /ISAPI/AccessControl/Attendance/weekPlan/capabilities?format=json",
+          "get_plan_list": "GET /ISAPI/AccessControl/Attendance/planTemplate?format=json",
+          "set_plan": "PUT /ISAPI/AccessControl/Attendance/weekPlan/<PlanNo>?format=json",
+          "get_plan": "GET /ISAPI/AccessControl/Attendance/weekPlan/<PlanNo>?format=json"
+        },
+        "request_message_example": {
+          "description_uz": "Yangi haftalik davomat rejasini sozlash uchun yuboriladigan so'rov tanasi. Bu yerda Dushanba kuni soat 10:10 dan 12:10 gacha bo'lgan vaqt oralig'i belgilanmoqda.",
+          "body": {
+            "AttendanceWeekPlan": {
+              "enable": true,
+              "WeekPlanCfg": [
+                {
+                  "id": 1,
+                  "week": "Monday",
+                  "enable": true,
+                  "TimeSegment": {
+                    "beginTime": "10:10:00",
+                    "endTime": "12:10:00"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "response_message_example": {
+          "description_uz": "Sozlash muvaffaqiyatli amalga oshirilganda qurilmadan qaytadigan standart javob.",
+          "body": {
+            "statusCode": 1,
+            "statusString": "ok",
+            "subStatusCode": "ok"
+          }
+        }
+      },
+      {
+        "type_name_uz": "Eshik holatini boshqarish uchun haftalik reja (Door Status Week Plan)",
+        "description_uz": "Haftaning belgilangan kunlari va soatlarida eshikning holatini (masalan, doimiy ochiq, doimiy yopiq, normal rejim) avtomatik ravishda o'zgartirish uchun ishlatiladi.",
+        "api_endpoints": {
+          "get_capability": "GET /ISAPI/AccessControl/DoorStatusWeekPlanCfg/capabilities?format=json",
+          "get_plan": "GET /ISAPI/AccessControl/DoorStatusWeekPlanCfg/<weekPlanID>?format=json",
+          "set_plan": "PUT /ISAPI/AccessControl/DoorStatusWeekPlanCfg/<weekPlanID>?format=json"
+        },
+        "request_message_example": {
+          "description_uz": "Eshik holati uchun haftalik reja sozlamasi. Bu misolda Dushanba kuni soat 00:00 dan 10:00 gacha eshik yopiq ('remainClosed') holatda bo'lishi belgilanmoqda.",
+          "body": {
+            "DoorStatusWeekPlanCfg": {
+              "enable": true,
+              "WeekPlanCfg": [
+                {
+                  "week": "Monday",
+                  "id": 1,
+                  "enable": true,
+                  "doorStatus": "remainClosed",
+                  "TimeSegment": {
+                    "beginTime": "00:00:00",
+                    "endTime": "10:00:00"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "response_message_example": {
+          "description_uz": "Sozlash muvaffaqiyatli amalga oshirilganda qurilmadan qaytadigan standart javob.",
+          "body": {
+            "statusCode": 1,
+            "statusString": "ok",
+            "subStatusCode": "ok"
+          }
+        }
+      },
+      {
+        "type_name_uz": "Foydalanuvchi kirish huquqlari uchun haftalik reja (User Right Week Plan)",
+        "description_uz": "Foydalanuvchilarning ma'lum resurslarga (masalan, eshiklarga) kirish huquqlarini haftalik jadval asosida cheklash yoki ruxsat berish. Bu orqali foydalanuvchi faqat belgilangan vaqtda eshikdan o'ta oladi.",
+        "api_endpoints": {
+          "get_capability": "GET /ISAPI/AccessControl/UserRightWeekPlanCfg/capabilities?format=json",
+          "get_plan": "GET /ISAPI/AccessControl/UserRightWeekPlanCfg/<weekPlanID>?format=json",
+          "set_plan": "PUT /ISAPI/AccessControl/UserRightWeekPlanCfg/<weekPlanID>?format=json"
+        },
+        "request_message_example": {
+          "description_uz": "Foydalanuvchi huquqlari uchun haftalik reja sozlamasi. Bu misolda Dushanba kuni 10:10 dan 12:10 gacha bo'lgan vaqtda 10 marta autentifikatsiyadan o'tishga ruxsat berilmoqda.",
+          "body": {
+            "UserRightWeekPlanCfg": {
+              "enable": true,
+              "WeekPlanCfg": [
+                {
+                  "week": "Monday",
+                  "id": 1,
+                  "enable": true,
+                  "TimeSegment": {
+                    "beginTime": "10:10:00",
+                    "endTime": "12:10:00"
+                  },
+                  "authenticationTimesEnabled": true,
+                  "authenticationTimes": 10
+                }
+              ]
+            }
+          }
+        },
+        "response_message_example": {
+          "description_uz": "Sozlash muvaffaqiyatli amalga oshirilganda qurilmadan qaytadigan standart javob.",
+          "body": {
+            "statusCode": 1,
+            "statusString": "ok",
+            "subStatusCode": "ok"
+          }
+        }
+      },
+      {
+        "type_name_uz": "Kartani o'qish qurilmasi uchun haftalik reja (Card Reader Week Plan)",
+        "description_uz": "Kartani o'qish qurilmasining (card reader) autentifikatsiya rejimlarini (masalan, faqat karta, karta va parol, barmoq izi) haftalik jadval bo'yicha o'zgartirib turish.",
+        "api_endpoints": {
+          "get_capability": "GET /ISAPI/AccessControl/VerifyWeekPlanCfg/capabilities?format=json",
+          "get_plan": "GET /ISAPI/AccessControl/VerifyWeekPlanCfg/<weekPlanID>?format=json",
+          "set_plan": "PUT /ISAPI/AccessControl/VerifyWeekPlanCfg/<weekPlanID>?format=json"
+        },
+        "request_message_example": {
+          "description_uz": "Kartani o'qish qurilmasi uchun autentifikatsiya rejimini sozlash. Bu misolda Dushanba kuni 00:00 dan 10:00 gacha 'karta va parol' ('cardAndPw') rejimi yoqilmoqda.",
+          "body": {
+            "VerifyWeekPlanCfg": {
+              "enable": true,
+              "WeekPlanCfg": [
+                {
+                  "week": "Monday",
+                  "id": 1,
+                  "enable": true,
+                  "verifyMode": "cardAndPw",
+                  "TimeSegment": {
+                    "beginTime": "00:00:00",
+                    "endTime": "10:00:00"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "response_message_example": {
+          "description_uz": "Sozlash muvaffaqiyatli amalga oshirilganda qurilmadan qaytadigan standart javob.",
+          "body": {
+            "statusCode": 1,
+            "statusString": "ok",
+            "subStatusCode": "ok"
+          }
+        }
+      }
+    ],
+    "general_workflow_uz": "Umumiy ish jarayoni quyidagicha: 1. Avval qurilmaning kerakli turdagi haftalik rejani qo'llab-quvvvatlashini tekshirish (get_capability API orqali). 2. Haftalik rejaning o'zini yaratish va sozlash (set_plan API orqali). Bu yerda haftaning kunlari, vaqt oraliqlari va shu vaqtda amal qiladigan qoidalar (masalan, eshik holati yoki kirish huquqi) belgilanadi. 3. Sozlangan rejani tekshirish (get_plan API orqali)."
+  }
+}

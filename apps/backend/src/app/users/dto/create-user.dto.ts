@@ -71,4 +71,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'User avatar URL',
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

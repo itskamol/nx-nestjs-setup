@@ -64,6 +64,9 @@ export class UserResponseDto {
   @Exclude()
   password: string;
 
+  @Exclude()
+  avatar: string;
+
   constructor(partial: Partial<UserResponseDto>) {
     // Explicitly exclude password field
     partial.password = undefined;

@@ -1,0 +1,735 @@
+[
+  {
+    "module_name": "employee_management",
+    "summary_uz": "Xodimlarni boshqarish moduli shaxslarni (xodimlarni) qidirish, qo‘shish, tahrirlash va o‘chirish kabi operatsiyalarni amalga oshirish uchun mo‘ljallangan. Bu tizimdagi markaziy modul bo‘lib, har bir shaxs `EmployeeNo` (xodim raqami) yordamida noyob identifikatsiyalanadi. Barcha boshqa ma'lumotlar (karta, barmoq izi, yuz rasmi) ushbu `EmployeeNo` orqali bog‘lanadi.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/capabilities",
+        "description_uz": "Tizimning xodimlarni boshqarish funksiyasini qo‘llab-quvvatlashini tekshirish. Javobda `isSupportUserInfo` maydoni `true` bo‘lishi kerak.",
+        "request_example": null,
+        "response_example": {
+          "AccessControlCap": {
+            "isSupportUserInfo": true,
+            "EmployeeNoInfo": {
+              "employeeNo": 32,
+              "characterType": "any",
+              "isSupportCompress": false
+            }
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Count?format=json",
+        "description_uz": "Qurilmaga qo‘shilgan xodimlarning umumiy sonini olish.",
+        "request_example": null,
+        "response_example": {
+          "UserInfoCount": {
+            "userNumber": 100,
+            "bindFaceUserNumber": 100,
+            "bindFingerprintUserNumber": 100,
+            "bindCardUserNumber": 100,
+            "bindIrisUserNumber": 100
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Search?format=json",
+        "description_uz": "Xodimlar haqidagi ma'lumotlarni qidirish (sahifalarga bo‘lib qaytariladi).",
+        "request_example": {
+          "UserInfoSearchCond": {
+            "searchID": "unique-search-id",
+            "searchResultPosition": 0,
+            "maxResults": 30,
+            "EmployeeNoList": [
+              {
+                "employeeNo": "1001"
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "UserInfoSearch": {
+            "searchID": "unique-search-id",
+            "responseStatusStrg": "OK",
+            "numOfMatches": 1,
+            "totalMatches": 1,
+            "UserInfo": [
+              {
+                "employeeNo": "1001",
+                "name": "John Doe",
+                "userType": "normal",
+                "Valid": {
+                  "enable": true,
+                  "beginTime": "2023-01-01T00:00:00+08:00",
+                  "endTime": "2025-12-31T23:59:59+08:00"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/SetUp?format=json",
+        "description_uz": "Xodim ma'lumotlarini qo‘shish yoki tahrirlash (agar xodim mavjud bo‘lsa tahrirlaydi, aks holda yangi xodim qo‘shadi).",
+        "request_example": {
+          "UserInfo": {
+            "employeeNo": "1002",
+            "name": "Jane Doe"
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok"
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Record?format=json",
+        "description_uz": "Yangi xodim qo‘shish. Agar xodim allaqachon mavjud bo‘lsa, xatolik qaytaradi.",
+        "request_example": {
+          "UserInfo": {
+            "employeeNo": "1003",
+            "name": "Peter Jones",
+            "userType": "normal"
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok"
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfo/Modify?format=json",
+        "description_uz": "Mavjud xodim ma'lumotlarini tahrirlash. Agar xodim topilmasa, xatolik qaytaradi.",
+        "request_example": {
+          "UserInfo": {
+            "employeeNo": "1003",
+            "name": "Peter Jones Jr."
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok"
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/UserInfoDetail/Delete?format=json",
+        "description_uz": "Bir yoki bir nechta xodimni o‘chirish. Jarayonning borishini alohida so‘rov orqali tekshirish kerak.",
+        "request_example": {
+          "UserInfoDetail": {
+            "mode": "byEmployeeNo",
+            "EmployeeNoList": [
+              {
+                "employeeNo": "1002"
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserInfoDetail/DeleteProcess?format=json",
+        "description_uz": "Xodimlarni o‘chirish jarayonining holatini tekshirish.",
+        "request_example": null,
+        "response_example": {
+          "DeleteProcessStatus": {
+            "status": "success",
+            "progress": 100
+          }
+        }
+      }
+    ],
+    "dependencies": ["card_management", "fingerprint_management", "face_recognition"],
+    "notes": "Barcha biometrik va karta ma'lumotlari `EmployeeNo` (xodim raqami) bilan bog‘lanadi. Xodim o‘chirilganda, unga tegishli barcha ma'lumotlar (karta, barmoq izi, yuz) ham avtomatik o‘chiriladi. [cite: 1828]"
+  },
+  {
+    "module_name": "face_recognition",
+    "summary_uz": "Yuz rasmlarini boshqarish moduli xodimlarga yuz ma'lumotlarini biriktirish uchun ishlatiladi. Bu modul yuz rasmlarini qidirish, qo‘shish, tahrirlash, o‘chirish va qurilma kamerasidan to‘g‘ridan-to‘g‘ri yuz rasmini olish (collect) imkonini beradi. Har bir yuz rasmi `FPID` orqali identifikatsiyalanadi va `EmployeeNo` orqali xodimga bog‘lanadi.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/capabilities",
+        "description_uz": "Tizimning yuz rasmlarini boshqarishni (`Face Picture Management`) qo‘llab-quvvatlashini tekshirish. Javobda `isSupportFDLib` maydoni `true` bo‘lishi kerak.",
+        "request_example": null,
+        "response_example": {
+          "AccessControlCap": {
+            "isSupportFDLib": true
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FDSearch?format=json",
+        "description_uz": "Mavjud yuz rasmlari haqidagi ma'lumotlarni qidirish.",
+        "request_example": {
+          "searchResultPosition": 0,
+          "maxResults": 10,
+          "faceLibType": "blackFD",
+          "FDID": "1",
+          "employeeNo": "1001"
+        },
+        "response_example": {
+          "FDSearch": {
+            "totalMatches": 1,
+            "MatchList": [
+              {
+                "employeeNo": "1001",
+                "name": "John Doe",
+                "FPID": "uuid-for-face"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FaceDataRecord?format=json",
+        "description_uz": "Xodimga yangi yuz rasmini qo‘shish. So‘rov `multipart/form-data` formatida yuboriladi, bunda JSON ma'lumotlari va yuz rasmining binar ma'lumotlari bo‘ladi.",
+        "request_example": "multipart/form-data with JSON part: {\"faceLibType\":\"blackFD\",\"FDID\":\"1\",\"FPID\":\"1001\"} and binary part (face_picture.jpg)",
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok",
+          "FPID": "1001"
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/Intelligent/FDLib/FDSearch/Delete?format=json&FDID=<FDID>&faceLibType=<FDType>",
+        "description_uz": "Belgilangan yuz rasmini o‘chirish.",
+        "request_example": {
+          "FPID": [
+            {
+              "value": "uuid-for-face-to-delete"
+            }
+          ]
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "ok"
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/CaptureFaceData",
+        "description_uz": "Qurilma kamerasidan yuz rasmini olishni boshlash.",
+        "request_example": {
+          "CaptureFaceDataCond": {
+            "captureInfrared": false,
+            "dataType": "url"
+          }
+        },
+        "response_example": {
+          "CaptureFaceData": {
+            "captureProgress": 0
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/CaptureFaceData/Progress",
+        "description_uz": "Yuz rasmini olish jarayonining holatini tekshirish. `captureProgress` 100 ga yetganda, jarayon tugallangan bo‘ladi.",
+        "request_example": null,
+        "response_example": {
+          "CaptureFaceData": {
+            "faceDataUrl": "http://<ip>/ISAPI/Intelligent/download/picture?url=...",
+            "captureProgress": 100,
+            "isCurRequestOver": true
+          }
+        }
+      }
+    ],
+    "dependencies": ["employee_management"],
+    "notes": "Yuz rasmini qo‘shishdan oldin, `EmployeeNo` orqali xodim tizimga qo‘shilgan bo‘lishi kerak[cite: 1947]. Qurilmada yuz rasmlari kutubxonasi (`Face Picture Library`) yaratilgan bo‘lishi zarur. [cite: 1947, 1948] Ba'zi qurilmalar infraqizil yuz rasmlari uchun alohida kutubxona (FDID=2) ishlatishi mumkin. [cite: 1948]"
+  },
+  {
+    "module_name": "card_management",
+    "summary_uz": "Kartalarni boshqarish moduli xodimlarga kirish kartalarini biriktirish, ularni boshqarish va nazorat qilish uchun mo‘ljallangan. Ushbu modul kartalarni qidirish, qo‘shish, tahrirlash, o‘chirish va kartani to‘g‘ridan-to‘g‘ri qurilmadan o‘qib olish (collect) imkoniyatini beradi. Har bir karta `cardNo` bilan identifikatsiyalanadi va `EmployeeNo` orqali xodimga bog‘lanadi.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/capabilities",
+        "description_uz": "Tizimning kartalarni boshqarishni (`Card Management`) qo‘llab-quvvatlashini tekshirish. Javobda `isSupportCardInfo` maydoni `true` bo‘lishi kerak.",
+        "request_example": null,
+        "response_example": {
+          "AccessControlCap": {
+            "isSupportCardInfo": true
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/CardInfo/Search?format=json",
+        "description_uz": "Mavjud kartalar haqidagi ma'lumotlarni qidirish.",
+        "request_example": {
+          "CardInfoSearchCond": {
+            "searchID": "unique-card-search",
+            "searchResultPosition": 0,
+            "maxResults": 50,
+            "employeeNo": "1001"
+          }
+        },
+        "response_example": {
+          "CardInfoSearch": {
+            "numOfMatches": 1,
+            "CardInfo": [
+              {
+                "employeeNo": "1001",
+                "cardNo": "123456789",
+                "cardType": "normalCard"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/CardInfo/Record?format=json",
+        "description_uz": "Xodimga yangi karta qo‘shish. Agar karta raqami tizimda mavjud bo‘lsa, xatolik qaytariladi.",
+        "request_example": {
+          "CardInfo": {
+            "employeeNo": "1001",
+            "cardNo": "987654321",
+            "cardType": "normalCard"
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK",
+          "cardNo": "987654321"
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/CardInfo/Delete?format=json",
+        "description_uz": "Xodimga tegishli kartani yoki bir nechta kartani o‘chirish.",
+        "request_example": {
+          "CardInfoDelCond": {
+            "CardNoList": [
+              {
+                "cardNo": "987654321"
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/CaptureCardInfo?format=json",
+        "description_uz": "Qurilmaning kartani o‘qish qurilmasiga (card reader) yaqinlashtirilgan kartaning ma'lumotlarini (raqami, turi) olish.",
+        "request_example": null,
+        "response_example": {
+          "CaptureCardInfo": {
+            "cardNo": "captured-card-number",
+            "cardType": "normalCard"
+          }
+        }
+      }
+    ],
+    "dependencies": ["employee_management"],
+    "notes": "Kartani qo‘shishdan oldin, `EmployeeNo` orqali xodim tizimda mavjud bo‘lishi shart. [cite: 1835] Har bir xodimga biriktirilishi mumkin bo‘lgan kartalar soni `GET /ISAPI/AccessControl/CardInfo/capabilities` orqali aniqlanadi. [cite: 1835] Karta raqami uzunligi va tekshirish qoidalari `/ISAPI/AccessControl/CardVerificationRule` orqali boshqariladi. [cite: 1836]"
+  },
+  {
+    "module_name": "fingerprint_management",
+    "summary_uz": "Barmoq izlarini boshqarish moduli xodimlarga biometrik ma'lumotlarni (barmoq izlarini) qo‘shish, ularni boshqarish va o‘chirish uchun mo‘ljallangan. Har bir barmoq izi `fingerPrintID` (1 dan 10 gacha) bilan belgilanadi va `EmployeeNo` orqali xodimga bog‘lanadi.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/capabilities",
+        "description_uz": "Tizimning barmoq izlarini boshqarishni qo‘llab-quvvatlashini tekshirish. Javobda `isSupportFingerPrintCfg` maydoni `true` bo‘lishi kerak.",
+        "request_example": null,
+        "response_example": {
+          "AccessControlCap": {
+            "isSupportFingerPrintCfg": true
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/FingerPrintUpload?format=json",
+        "description_uz": "Mavjud barmoq izlari haqida ma'lumot qidirish (ma'lumotlarsiz, faqat mavjudligi haqida).",
+        "request_example": {
+          "FingerPrintCond": {
+            "searchID": "fp-search-1",
+            "employeeNo": "1001"
+          }
+        },
+        "response_example": {
+          "FingerPrintInfo": {
+            "searchID": "fp-search-1",
+            "status": "OK",
+            "FPInfo": [
+              {
+                "employeeNo": "1001",
+                "fingerPrintID": 1,
+                "fingerType": "normalFP"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/FingerPrint/SetUp?format=json",
+        "description_uz": "Barmoq izi ma'lumotlarini (odatda, boshqa qurilmadan olingan shablonni) qo‘shish yoki tahrirlash (apply).",
+        "request_example": {
+          "FingerPrintCfg": {
+            "employeeNo": "1001",
+            "fingerPrintID": 2,
+            "fingerType": "normalFP",
+            "fingerData": "<base64 encoded fingerprint template>"
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK",
+          "employeeNo": "1001",
+          "fingerPrintID": 2
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/FingerPrint/Delete?format=json",
+        "description_uz": "Belgilangan barmoq izlarini o‘chirish. Jarayonning borishini alohida so‘rov orqali tekshirish kerak.",
+        "request_example": {
+          "FingerPrintDelete": {
+            "mode": "byEmployeeNo",
+            "EmployeeNoDetail": {
+              "employeeNo": "1001",
+              "fingerPrintID": [2]
+            }
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/FingerPrint/DeleteProcess?format=json",
+        "description_uz": "Barmoq izlarini o‘chirish jarayonining holatini tekshirish.",
+        "request_example": null,
+        "response_example": {
+          "DeleteProcessStatus": {
+            "status": "success",
+            "progress": 100
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/AccessControl/CaptureFingerPrint",
+        "description_uz": "Qurilmaning barmoq izi skaneridan barmoq izi shablonini olish (collect).",
+        "request_example": {},
+        "response_example": {
+          "CaptureFingerPrint": {
+            "captureProgress": 100,
+            "quality": 80,
+            "fingerData": "<base64 encoded fingerprint template>"
+          }
+        }
+      }
+    ],
+    "dependencies": ["employee_management"],
+    "notes": "Barmoq izini qo‘shishdan oldin, `EmployeeNo` orqali xodim tizimda mavjud bo‘lishi shart. [cite_start]Har bir xodim uchun maksimal 10 ta barmoq izi saqlanishi mumkin. [cite: 1890]"
+  },
+  {
+    "module_name": "access_control_configuration",
+    "summary_uz": "Kirishni boshqarish konfiguratsiyasi eshik parametrlari, karta o‘qish qurilmalari, autentifikatsiya rejimlari va boshqa umumiy sozlamalarni o‘z ichiga oladi. Bu modul orqali eshikning ochiq qolish vaqti, magnit sensori turi, avtorizatsiya usullari va boshqa muhim parametrlar sozlanadi.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/Door/param/<doorID>",
+        "description_uz": "Belgilangan eshikning joriy parametrlarini olish.",
+        "request_example": null,
+        "response_example": {
+          "DoorParam": {
+            "doorNo": 1,
+            "doorName": "Main Entrance",
+            "openDuration": 5,
+            "magneticType": "alwaysClose"
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/Door/param/<doorID>",
+        "description_uz": "Belgilangan eshikning parametrlarini (eshik nomi, ochiq turish vaqti, magnit turi va h.k.) o‘rnatish.",
+        "request_example": {
+          "DoorParam": {
+            "doorName": "Main Entrance",
+            "openDuration": 7,
+            "magneticAlarmTimeout": 60
+          }
+        },
+        "response_example": {
+          "statusCode": 0,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/CardReaderCfg/<cardReaderID>?format=json",
+        "description_uz": "Karta o‘qish qurilmasining (card reader) parametrlarini olish.",
+        "request_example": null,
+        "response_example": {
+          "CardReaderCfg": {
+            "cardReaderNo": 1,
+            "enable": true,
+            "swipeInterval": 5,
+            "cardReaderType": "IC"
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/CardReaderCfg/<cardReaderID>?format=json",
+        "description_uz": "Karta o‘qish qurilmasining parametrlarini sozlash.",
+        "request_example": {
+          "CardReaderCfg": {
+            "enable": true,
+            "swipeInterval": 3,
+            "pressTimeout": 10
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/AcsCfg?format=json",
+        "description_uz": "Kirishni boshqarish tizimining umumiy sozlamalarini olish.",
+        "request_example": null,
+        "response_example": {
+          "AcsCfg": {
+            "showCapPic": true,
+            "uploadCapPic": true,
+            "voicePrompt": true
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/AcsCfg?format=json",
+        "description_uz": "Kirishni boshqarish tizimining umumiy sozlamalarini o‘rnatish.",
+        "request_example": {
+          "AcsCfg": {
+            "showCapPic": false,
+            "uploadCapPic": true,
+            "voicePrompt": false
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      }
+    ],
+    "dependencies": ["week_plan_management"],
+    "notes": "Eshikning autentifikatsiya rejimlari (`verifyMode`) odatda haftalik yoki bayram rejimlari (`Week Plan` yoki `Holiday Plan`) orqali dinamik tarzda boshqariladi. Umumiy sozlamalar barcha eshiklar va o‘qish qurilmalariga ta'sir qilishi mumkin."
+  },
+  {
+    "module_name": "week_plan_management",
+    "summary_uz": "Haftalik reja (Week Plan) moduli qurilmaning turli funksiyalarini (eshik holati, autentifikatsiya rejimi, foydalanuvchi huquqlari) hafta kunlari va vaqt oralig‘iga qarab avtomatik boshqarish imkonini beradi. Har bir funksiya uchun alohida haftalik reja tuziladi va ular shablonlar (`Plan Template`) orqali boshqarilishi mumkin.",
+    "key_endpoints": [
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/DoorStatusWeekPlanCfg/<weekPlanID>?format=json",
+        "description_uz": "Eshik holatini boshqarish uchun haftalik rejani olish (masalan, dushanba kuni soat 9:00 dan 18:00 gacha eshik ochiq qolsin).",
+        "request_example": null,
+        "response_example": {
+          "DoorStatusWeekPlanCfg": {
+            "enable": true,
+            "WeekPlanCfg": [
+              {
+                "week": "Monday",
+                "id": 1,
+                "enable": true,
+                "doorStatus": "remainOpen",
+                "TimeSegment": {
+                  "beginTime": "09:00:00",
+                  "endTime": "18:00:00"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/DoorStatusWeekPlanCfg/<weekPlanID>?format=json",
+        "description_uz": "Eshik holatini boshqarish uchun yangi haftalik reja o‘rnatish.",
+        "request_example": {
+          "DoorStatusWeekPlanCfg": {
+            "enable": true,
+            "WeekPlanCfg": [
+              {
+                "week": "Friday",
+                "id": 1,
+                "enable": true,
+                "doorStatus": "remainOpen",
+                "TimeSegment": {
+                  "beginTime": "09:00:00",
+                  "endTime": "17:00:00"
+                }
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/VerifyWeekPlanCfg/<weekPlanID>?format=json",
+        "description_uz": "Karta o‘qish qurilmasi (card reader) uchun autentifikatsiya rejimi bo‘yicha haftalik rejani olish (masalan, ish vaqtida karta+barmoq izi, ishdan keyin faqat karta).",
+        "request_example": null,
+        "response_example": {
+          "VerifyWeekPlanCfg": {
+            "enable": true,
+            "WeekPlanCfg": [
+              {
+                "week": "Monday",
+                "id": 1,
+                "enable": true,
+                "verifyMode": "fpAndCard",
+                "TimeSegment": {
+                  "beginTime": "09:00:00",
+                  "endTime": "18:00:00"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/AccessControl/VerifyWeekPlanCfg/<weekPlanID>?format=json",
+        "description_uz": "Autentifikatsiya rejimi bo‘yicha yangi haftalik reja o‘rnatish.",
+        "request_example": {
+          "VerifyWeekPlanCfg": {
+            "enable": true,
+            "WeekPlanCfg": [
+              {
+                "week": "Saturday",
+                "id": 1,
+                "enable": true,
+                "verifyMode": "card",
+                "TimeSegment": {
+                  "beginTime": "10:00:00",
+                  "endTime": "14:00:00"
+                }
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "statusCode": 1,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/AccessControl/UserRightWeekPlanCfg/<weekPlanID>?format=json",
+        "description_uz": "Foydalanuvchi huquqlari uchun haftalik rejani olish.",
+        "request_example": null,
+        "response_example": {
+          "UserRightWeekPlanCfg": {
+            "enable": true,
+            "WeekPlanCfg": [
+              {
+                "week": "Sunday",
+                "id": 1,
+                "enable": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "dependencies": ["access_control_configuration"],
+    "notes": "Haftalik rejalar `Plan Templates` va `Holiday Groups` bilan birgalikda ishlatilishi mumkin, bu esa yanada moslashuvchan boshqaruvni ta'minlaydi. Masalan, bir nechta haftalik rejalarni bitta shablonga birlashtirish va uni kerakli eshiklarga tayinlash mumkin."
+  },
+  {
+    "module_name": "event_management",
+    "summary_uz": "Hodisalarni boshqarish moduli qurilma tomonidan aniqlangan hodisalar (masalan, kirishga ruxsat berilgani, rad etilgani, eshikning majburan ochilishi) haqidagi ma'lumotlarni tashqi tizimga (serverga) yuborish mexanizmlarini ta'minlaydi. Uch xil usul mavjud: Arming (doimiy ulanish), Subscription (filtrlangan doimiy ulanish) va Listening (qurilmadan serverga POST so‘rov).",
+    "key_endpoints": [
+      {
+        "method": "PUT",
+        "endpoint": "/ISAPI/Event/notification/httpHosts/<hostID>",
+        "description_uz": "Hodisa yuz berganda qurilma ma'lumot yuborishi kerak bo‘lgan server manzilini (IP, port, URL) sozlash (Listening mode).",
+        "request_example": {
+          "HttpHostNotification": {
+            "id": "1",
+            "url": "http://192.168.1.100/api/event_receiver",
+            "protocolType": "HTTP",
+            "parameterFormatType": "JSON",
+            "addressingFormatType": "ipaddress",
+            "ipAddress": "192.168.1.100",
+            "portNo": 80,
+            "EventList": [
+              {
+                "type": "AccessControllerEvent"
+              }
+            ]
+          }
+        },
+        "response_example": {
+          "statusCode": 0,
+          "statusString": "OK"
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/Event/notification/httpHosts/capabilities",
+        "description_uz": "Listening host sozlamalarining imkoniyatlarini olish.",
+        "request_example": null,
+        "response_example": {
+          "HttpHostNotificationCap": {
+            "hostNumber": 4,
+            "protocolType": "HTTP,HTTPS",
+            "parameterFormatType": "XML,JSON"
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "/ISAPI/Event/notification/alertStream",
+        "description_uz": "Barcha hodisalar haqida real vaqtda ma'lumot olish uchun doimiy (persistent) HTTP ulanishni o‘rnatish (Arming mode).",
+        "request_example": null,
+        "response_example": "multipart/x-mixed-replace stream with event data."
+      },
+      {
+        "method": "POST",
+        "endpoint": "/ISAPI/Event/notification/subscribeEvent",
+        "description_uz": "Faqat ma'lum turdagi hodisalar uchun doimiy ulanish o‘rnatish (Subscription mode).",
+        "request_example": {
+          "SubscribeEvent": {
+            "eventUrl": ["/ISAPI/Event/triggers/AccessControllerEvent"]
+          }
+        },
+        "response_example": "multipart/x-mixed-replace stream with filtered event data."
+      }
+    ],
+    "dependencies": [],
+    "notes": "Serverga asoslangan tizimlar uchun eng qulay usul bu 'Listening' rejimi bo‘lib, unda qurilma o‘zi serverga POST so‘rovini yuboradi[cite: 1682]. 'Arming' va 'Subscription' rejimlari esa klient tomonidan qurilmaga doimiy ulanishni talab qiladi va real vaqtda hodisalarni olish uchun qulay. [cite: 1680, 1681] Hodisa xabarlari tarkibida rasm kabi binar ma'lumotlar bo‘lishi mumkin va ular `multipart/form-data` formatida yuboriladi. [cite: 1747, 1751, 1752, 1753]"
+  }
+]
