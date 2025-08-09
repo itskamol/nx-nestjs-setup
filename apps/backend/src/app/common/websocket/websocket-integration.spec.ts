@@ -60,6 +60,7 @@ class MockServer {
 
 describe('WebSocket Gateway Integration', () => {
   let gateway: FaceRecognitionWebSocketGateway;
+  let eventService: any;
   let jwtService: JwtService;
   let mockServer: MockServer;
   let mockSocket: MockSocket;

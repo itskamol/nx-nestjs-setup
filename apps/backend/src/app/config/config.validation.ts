@@ -18,7 +18,7 @@ export class EnvironmentVariables {
   PORT: number = 3000;
 
   @IsString()
-  @IsIn(['development', 'staging', 'production'])
+  @IsIn(['development', 'staging', 'production', 'test'])
   NODE_ENV: string = 'development';
 
   @IsString()

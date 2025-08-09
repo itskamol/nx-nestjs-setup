@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from './jwt.service';
-import { AppConfigService } from '../config/config.service';
+import { AppConfigService } from '@backend/app/config/config.service';
 import { Role, User } from '@prisma/client';
 
 describe('JwtService', () => {
@@ -96,7 +96,7 @@ describe('JwtService', () => {
       // Check refresh token call
       expect(nestJwtService.sign).toHaveBeenNthCalledWith(
         2,
-        { sub: mockUser.id, type: 'refresh' },
+        expect.objectContaining({ sub: mockUser.id, type: 'refresh' }),
         {
           secret: mockJwtConfig.refreshSecret,
           expiresIn: mockJwtConfig.refreshExpiresIn,

@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from '../database';
-import { CacheModule } from '../common';
-import { FaceRecognitionController } from './controllers';
-import { FaceRecognitionService, HikvisionService } from './services';
+import { FaceRecognitionController } from './controllers/face-recognition.controller';
+import { FaceRecognitionService } from './services/face-recognition.service';
+import { HikvisionModule } from '../hikvision/hikvision.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, CacheModule],
+  imports: [HikvisionModule],
   controllers: [FaceRecognitionController],
-  providers: [FaceRecognitionService, HikvisionService],
-  exports: [FaceRecognitionService, HikvisionService],
+  providers: [FaceRecognitionService],
 })
 export class FaceRecognitionModule {}

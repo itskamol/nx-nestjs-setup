@@ -11,7 +11,7 @@ import { AppConfigService } from './config.service';
       isGlobal: true,
       load: [configuration],
       validate: validateConfig,
-      envFilePath: [`.env.${process.env['NODE_ENV'] || 'development'}`, '.env'],
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
       expandVariables: true,
       cache: true,
     }),

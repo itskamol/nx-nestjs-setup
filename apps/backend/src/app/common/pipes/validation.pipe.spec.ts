@@ -1,7 +1,8 @@
 import { ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 import { CustomValidationPipe } from './validation.pipe';
+import { Type } from 'class-transformer';
 
 // Test DTO classes
 class TestDto {
@@ -21,6 +22,8 @@ class NestedTestDto {
   @IsString()
   title: string;
 
+  @ValidateNested()
+  @Type(() => TestDto)
   user: TestDto;
 }
 

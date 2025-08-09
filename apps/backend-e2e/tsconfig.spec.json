@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "paths": {
+      "@backend/*": ["<rootDir>/../backend/src/*"]
+    }
   },
   "include": ["jest.config.ts", "src/**/*.ts"]
 }
