@@ -114,4 +114,9 @@ export class AppConfigService {
       }
     );
   }
+
+  get encryptionKey(): string {
+    const config = this.configService.get<AppConfig>('app');
+    return config?.encryptionKey;
+  }
 }

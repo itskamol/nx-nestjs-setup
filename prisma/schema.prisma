@@ -49,19 +49,19 @@ enum FaceEventType {
 }
 
 model FaceRecord {
-  id          String   @id @default(cuid())
-  userId      String?
-  faceId      String   @unique // Hikvision face ID
-  imageData   String   // Base64 encoded image
-  faceData    String   // Face features/template
-  confidence  Float
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user        User?    @relation(fields: [userId], references: [id])
-  events      FaceRecognitionEvent[]
-  
+  id         String   @id @default(cuid())
+  userId     String?
+  faceId     String   @unique // Hikvision face ID
+  imageData  String // Base64 encoded image
+  faceData   String // Face features/template
+  confidence Float
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User?                  @relation(fields: [userId], references: [id])
+  events FaceRecognitionEvent[]
+
   @@index([userId])
   @@index([faceId])
   @@index([isActive])
@@ -69,22 +69,52 @@ model FaceRecord {
 }
 
 model FaceRecognitionEvent {
-  id          String                   @id @default(cuid())
+  id           String        @id @default(cuid())
   faceRecordId String?
-  faceId      String?
-  eventType   FaceEventType
-  confidence  Float
-  timestamp   DateTime                 @default(now())
-  cameraId    String?
-  location    String?
-  imageData   String?                  // Base64 encoded snapshot
-  metadata    Json?                    // Additional event data
-  
-  faceRecord  FaceRecord?              @relation(fields: [faceRecordId], references: [id])
-  
+  faceId       String?
+  eventType    FaceEventType
+  confidence   Float
+  timestamp    DateTime      @default(now())
+  cameraId     String?
+  location     String?
+  imageData    String? // Base64 encoded snapshot
+  metadata     Json? // Additional event data
+
+  faceRecord FaceRecord? @relation(fields: [faceRecordId], references: [id])
+
   @@index([faceRecordId])
   @@index([faceId])
   @@index([eventType])
   @@index([timestamp])
   @@map("face_recognition_events")
+}
+
+model Device {
+  id              Int          @id @default(autoincrement())
+  name            String
+  username        String
+  location        String?
+  host            String?
+  port            Int          @default(80)
+  password        String
+  status          DeviceStatus @default(ACTIVE)
+  deviceName      String
+  deviceID        String
+  model           String
+  serialNumber    String       @unique
+  macAddress      String
+  firmwareVersion String
+  deviceType      String
+  lastSeenAt      DateTime?
+  metadata        Json?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("devices")
+}
+
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+  OFFLINE
 }

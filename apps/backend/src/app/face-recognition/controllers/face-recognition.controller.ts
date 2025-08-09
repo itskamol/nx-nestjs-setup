@@ -361,7 +361,6 @@ export class FaceRecognitionController {
     example: { success: true },
   })
   async handleWebhook(@Body() webhookDto: FaceWebhookDto): Promise<{ success: boolean }> {
-    console.log(webhookDto);
     // Validate webhook signature
     const isValid = this.hikvisionService.validateWebhookSignature(
       JSON.stringify(webhookDto),

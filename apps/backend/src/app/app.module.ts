@@ -16,12 +16,14 @@ import {
   LoggerModule,
   SecurityMiddleware,
   ServicesModule,
-  WebSocketModule,
+  // WebSocketModule,
 } from './common';
 
 // Feature modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { DeviceModule } from './device/device.module';
+import { HikvisionModule } from './hikvision/hikvision.module';
 import { FaceRecognitionModule } from './face-recognition/face-recognition.module';
 
 // Controllers and Services
@@ -51,7 +53,9 @@ import { AppService } from './app.service';
     AuthModule,
     UsersModule,
     FaceRecognitionModule,
-    WebSocketModule,
+    // WebSocketModule,
+    DeviceModule,
+    HikvisionModule
   ],
   controllers: [AppController],
   providers: [

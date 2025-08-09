@@ -48,6 +48,7 @@ export interface FaceRecognitionConfig {
 export interface AppConfig {
   port: number;
   nodeEnv: string;
+  encryptionKey: string;
   apiPrefix: string;
   corsOrigins: string[];
   database: DatabaseConfig;
@@ -64,6 +65,7 @@ export default registerAs(
     nodeEnv: process.env['NODE_ENV'] || 'development',
     apiPrefix: process.env['API_PREFIX'] || 'api',
     corsOrigins: process.env['CORS_ORIGINS']?.split(',') || ['http://localhost:3000'],
+    encryptionKey: process.env['ENCRYPTION_KEY'] || 'your-32-character-encryption-key',
 
     database: {
       url:
